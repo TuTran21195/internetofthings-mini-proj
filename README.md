@@ -1,1 +1,0 @@
-# internetofthings-mini-proj
