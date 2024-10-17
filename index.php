@@ -56,26 +56,26 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // Mặc định là
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
-        <a class="navbar-brand <?php echo ($page == 'profile') ? 'active' : ''; ?>" href="index.php?page=dashboard" >B21DCAT134</a>
+        <a class="navbar-brand <?php echo ($page == 'profile') ? 'active' : ''; ?>" href="index.php?page=profile" >B21DCAT134</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarText">
           <ul class="nav nav-pills me-auto mb-2 mb-lg-0">
-            <li class="nav-item <?php echo ($page == 'dashboard') ? 'active' : ''; ?>">
-              <a class="nav-link" id="dashboard" aria-current="page" href="index.php?page=dashboard" >Dashboard</a>
+            <li class="nav-item ">
+              <a class="nav-link <?php echo ($page == 'dashboard') ? 'active' : ''; ?> " id="dashboard" aria-current="page" href="index.php?page=dashboard" >Dashboard</a>
             </li>
-            <li class="nav-item <?php echo ($page == 'data-sensor') ? 'active' : ''; ?>">
-              <a class="nav-link" id="dashboard" aria-current="page" href="index.php?page=dashboard" >Data sensor</a>
+            <li class="nav-item ">
+              <a class="nav-link <?php echo ($page == 'data-sensor') ? 'active' : ''; ?>" id="data-sensor" aria-current="page" href="index.php?page=data-sensor" >Data sensor</a>
             </li>
-            <li class="nav-item <?php echo ($page == 'action-history') ? 'active' : ''; ?>">
-              <a class="nav-link" id="dashboard" aria-current="page" href="index.php?page=dashboard" >Action History</a>
+            <li class="nav-item">
+              <a class="nav-link  <?php echo ($page == 'action-history') ? 'active' : ''; ?>" id="action-history" aria-current="page" href="index.php?page=action-history" >Action History</a>
             </li>
-            <li class="nav-item <?php echo ($page == 'profile') ? 'active' : ''; ?>">
-              <a class="nav-link" id="dashboard" aria-current="page" href="index.php?page=dashboard" >Profile</a>
+            <li class="nav-item">
+              <a class="nav-link <?php echo ($page == 'profile') ? 'active' : ''; ?>" id="profile" aria-current="page" href="index.php?page=profile" >Profile</a>
             </li>
           </ul>
-          <span class="navbar-text <?php echo ($page == 'dashboard') ? 'active' : ''; ?>" href="index.php?page=dashboard" >Hệ thống IoT - Theo dõi và điều khiển thiết bị</span>
+          <span class="navbar-text">Hệ thống IoT - Theo dõi và điều khiển thiết bị</span>
         </div>
       </div>
     </nav>
@@ -86,16 +86,21 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // Mặc định là
         // Include trang dựa vào giá trị của biến $page
         if ($page == 'dashboard') {
             include 'views/dashboard.php';
-        } elseif ($page == 'data_sensor') {
-            include 'views/data_sensor.php';
-        } elseif ($page == 'action_history') {
-            include 'views/action_history.php';
+        } elseif ($page == 'data-sensor') {
+            include 'views/data-sensor.php';
+        } elseif ($page == 'action-history') {
+            include 'views/action-history.php';
         } elseif ($page == 'profile') {
             include 'views/profile.php';
         }
         ?>
     </div>
     
+    <script>
+      // Truyền biến $page từ PHP sang biến currentPage ở JavaScript
+      var currentPage = "<?php echo $page; ?>";
+    </script>
+
     <script src="./js/scripts.js"></script>
 </body>
 </html>

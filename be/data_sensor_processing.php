@@ -28,12 +28,12 @@
 
     $sql = "SELECT * FROM tbl_data_sensor WHERE 1=1";
 
-    // lọc trong khoảng thời gian
-    if (!empty($request['startDate']) && !empty($request['endDate'])) {
-        $startDate = $request['startDate'];
-        $endDate = $request['endDate'];
-        $sql .= " AND time BETWEEN '$startDate' AND '$endDate'";
-    }
+    // // lọc trong khoảng thời gian
+    // if (!empty($request['startDate']) && !empty($request['endDate'])) {
+    //     $startDate = $request['startDate'];
+    //     $endDate = $request['endDate'];
+    //     $sql .= " AND time BETWEEN '$startDate' AND '$endDate'";
+    // }
 
     // tìm kiếm
     if (!empty($request['search']['value'])) {

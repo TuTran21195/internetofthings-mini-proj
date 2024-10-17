@@ -7,18 +7,18 @@
 
 <div class="container-fluid">
   <div class="row" style="margin: 2vw">
-    <!-- <div class="col">
+    <div class="col-3">
       <select class="form-select" aria-label="Default select example">
         <option selected>Chọn tìm kiếm theo: Any</option>
         <option value="1">Tìm theo nhiệt độ</option>
         <option value="2">Tìm theo độ ẩm</option>
         <option value="3">Tìm theo độ sáng</option>
       </select>
-    </div> -->
+    </div>
   </div>
 
   <div class="row" style="margin: 0 2vw 2vw 2vw">
-    <div class="col">
+    <!-- <div class="col">
       <form>
         <p>Chọn thời gian bắt đầu</p>
         <input id="datestart" type="datetime-local" placeholder="Chọn thời điểm bắt đầu" />
@@ -35,7 +35,7 @@
     </div>
     <div class="col">
     <button type="button" class="btn btn-success" onclick="getTableDataSensor()">Clear all Filter</button>
-    </div>
+    </div> -->
 
   </div>
 

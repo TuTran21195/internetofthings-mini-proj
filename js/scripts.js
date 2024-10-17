@@ -27,9 +27,18 @@ function loadView(view) {
 }
 
 
-// Load dashboard view by default
+
 document.addEventListener('DOMContentLoaded', () => {
-    loadView('dashboard');
+  if (currentPage === 'dashboard') {
+    // callback(); // Thực thi callback sau khi nội dung đã được tải
+    // console.log("this is Dashboard view")
+    circularProgressMask();
+    drawChart(); // Gọi hàm vẽ biểu đồ nếu là dashboard
+  } else if(currentPage === 'data-sensor' ) {
+    getTableDataSensor();
+  } else if (currentPage == 'action-history'){
+    getTableActionHistory();
+  }
 
 });
 
@@ -159,8 +168,8 @@ function remoteDevices(){
 // ============================= DATA SENSOR VIEW ==============================
 
 function getTableDataSensor(){
-  console.log('123 this is one');
-  console.log(document.getElementById('datestart').value);
+  console.log('123 this is one getTableDataSensor');
+  // console.log(document.getElementById('datestart').value);
   
   $('#data-sensor-table').DataTable({
     "processing": true,
@@ -222,7 +231,7 @@ function convertFlatpickrTime(flatpickrTime) {
 
 function getTableActionHistory(){
   console.log('123 this is action history');
-  console.log(document.getElementById('datestart').value);
+  // console.log(document.getElementById('datestart').value);
   
   $('#action-history-table').DataTable({
     "processing": true,
