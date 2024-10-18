@@ -133,6 +133,49 @@ function drawChart() {
  
 }
 
+// WebSocket kết nối tới server
+const ws = new WebSocket('ws://localhost:8080');
+
+ws.onmessage = function(event) { 
+    // Nhận dữ liệu mới từ WebSocket server
+    const newData = JSON.parse(event.data);
+
+    if (newData.humidity && newData.temperature && newData.light) {
+        // Nếu nhận được dữ liệu từ cảm biến, cập nhật biểu đồ
+        addNewDataToChart(newData);
+    } else if (newData.message) {
+        // Nếu nhận được lệnh điều khiển LED hoặc phản hồi, hiển thị thông báo
+        console.log("LED Message: ", newData.message);
+        // Có thể cập nhật trạng thái LED trên giao diện, ví dụ: document.getElementById('led-status').innerText = newData.message;
+    }
+};
+
+// Hàm thêm dữ liệu mới vào biểu đồ
+function addNewDataToChart(newData) {
+    // Thêm dữ liệu mới vào biểu đồ (temperature, humidity, light)
+    chart.data.datasets[0].data.push(newData.temperature);
+    chart.data.datasets[1].data.push(newData.humidity);
+    chart.data.datasets[2].data.push(newData.light);
+
+    // Thêm timestamp mới
+    const currentTime = new Date().toLocaleTimeString(); // Lấy thời gian hiện tại
+    chart.data.labels.push(currentTime);
+
+    // Xóa dữ liệu cũ nhất nếu có hơn 10 điểm dữ liệu
+    if (chart.data.labels.length > 10) {
+        chart.data.labels.shift(); // Xóa timestamp cũ nhất
+        chart.data.datasets[0].data.shift(); // Xóa nhiệt độ cũ nhất
+        chart.data.datasets[1].data.shift(); // Xóa độ ẩm cũ nhất
+        chart.data.datasets[2].data.shift(); // Xóa ánh sáng cũ nhất
+    }
+
+    // Vẽ lại biểu đồ
+    chart.update();
+}
+
+
+
+
 // remote devices
 
 function remoteDevices(){
