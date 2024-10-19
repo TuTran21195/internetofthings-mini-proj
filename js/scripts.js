@@ -27,7 +27,7 @@ function loadView(view) {
 }
 
 
-
+//Khi load content cho web thì:
 document.addEventListener('DOMContentLoaded', () => {
   if (currentPage === 'dashboard') {
     // callback(); // Thực thi callback sau khi nội dung đã được tải
@@ -133,15 +133,26 @@ function drawChart() {
  
 }
 
-// WebSocket kết nối tới server
-const ws = new WebSocket('ws://localhost:8080');
+// WebSocket kết nối tới server WEBSOCKET KẾT NỐI TỚI SERVER
+const ws = new WebSocket('ws://localhost:8081/ws');
+
+ws.onopen = function() {
+    console.log('WebSocket connection opened.');
+};
+
+
+ws.onclose = function() {
+    console.log('WebSocket connection closed.');
+};
 
 ws.onmessage = function(event) { 
     // Nhận dữ liệu mới từ WebSocket server
     const newData = JSON.parse(event.data);
+    console.log('Message from WebSocket server:', newData);
 
     if (newData.humidity && newData.temperature && newData.light) {
         // Nếu nhận được dữ liệu từ cảm biến, cập nhật biểu đồ
+        console.log("Msg from sensor: ", newData);
         addNewDataToChart(newData);
     } else if (newData.message) {
         // Nếu nhận được lệnh điều khiển LED hoặc phản hồi, hiển thị thông báo

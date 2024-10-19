@@ -1,6 +1,9 @@
 {
     "require": {
         "cboden/ratchet": "^0.4.4",
-        "bluerhinos/phpmqtt": "@dev"
+        "bluerhinos/phpmqtt": "@dev",
+        "react/event-loop": "^1.5",
+        "react/socket": "^1.16",
+        "ratchet/pawl": "^0.4.1"
     }
 }
