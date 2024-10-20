@@ -17,7 +17,7 @@ class MyWebSocketServer implements MessageComponentInterface {
     public function onOpen(ConnectionInterface $conn) {
         // Khi có một kết nối mới
         $this->clients->attach($conn);
-        echo "New connection! ({$conn->resourceId})\n";
+        echo "New connection from ({$conn->resourceId})\n";
     }
 
     public function onMessage(ConnectionInterface $from, $msg) {

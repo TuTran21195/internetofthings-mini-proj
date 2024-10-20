@@ -9,7 +9,7 @@ use Ratchet\Client\WebSocket;
 use React\EventLoop\Factory;
 use Ratchet\Client\Connector;
 
-$server   = '192.168.180.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
+$server   = '192.168.1.7';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
     //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
 $port = 2003;                // Cổng MQTT
 $clientId = 'php-mqtt-listener';     // ID client MQTT
@@ -18,6 +18,8 @@ $clientId = 'php-mqtt-listener';     // ID client MQTT
 // Tạo vòng lặp sự kiện ReactPHP
 $loop = Factory::create();
 $connector = new Connector($loop);
+
+
 
 // Kết nối tới broker MQTT
 $mqtt = new MqttClient($server, $port, $clientId);
@@ -31,48 +33,65 @@ $connectionSettings = (new ConnectionSettings)
     ->setLastWillMessage('Client disconnected') // Tin nhắn khi mất kết nối
     ->setLastWillQualityOfService(0);
 
-// Hàm xử lý khi nhận được message từ MQTT
-$mqtt->subscribe('dulieu', function ($topic, $message) use ($connector) {
-    echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);
-
-    // Xử lý chuỗi message nhận được
-    if (strpos($message, 'Humidity: ') !== false) {
-        preg_match('/Humidity:\s(\d+)\s%.*Temperature:\s([\d.]+)\s\*C.*Light\sLevel:\s(\d+)\slux/', $message, $matches);
-
-        if ($matches) {
-            $humidity = $matches[1];    // Lấy giá trị độ ẩm
-            $temperature = $matches[2]; // Lấy giá trị nhiệt độ
-            $lux = $matches[3];         // Lấy giá trị ánh sáng
-            $time = date('Y-m-d H:i:s'); // Lấy thời gian hiện tại
-
-            // Lưu dữ liệu vào cơ sở dữ liệu
-            saveToDatabase($humidity, $temperature, $lux, $time);
-
-            // Gửi tín hiệu qua WebSocket để cập nhật biểu đồ
-            $connector('ws://localhost:8081/ws', [], ['Origin' => 'http://localhost'])
-                ->then(function(WebSocket $conn) use ($humidity, $temperature, $lux) {
-                    $data = json_encode([
-                        'humidity' => $humidity,
-                        'temperature' => $temperature,
-                        'lux' => $lux
-                    ]);
-
-                    $conn->send($data); // Gửi dữ liệu qua WebSocket
-                    $conn->close();
-                }, function($e) {
-                    echo "Không thể kết nối WebSocket: {$e->getMessage()}\n";
-                });
-        }
-    } elseif (strpos($message, 'led1 on') !== false) {
-        echo "Nhận lệnh: Bật đèn LED 1\n";
-    } elseif (strpos($message, 'turned on') !== false) {
-        echo "Đèn LED 1 đã bật thành công\n";
-    }
-}, 0); // Độ ưu tiên QoS 0
 
 // Kết nối MQTT và bắt đầu lắng nghe
-$mqtt->connect($connectionSettings, true);
-$mqtt->loop(true); // Lắng nghe liên tục
+try {
+    $mqtt->connect($connectionSettings, true);  // Establish connection
+    echo "ket noi mqtt thanh cong\n"; 
+
+    // Hàm xử lý khi nhận được message từ MQTT
+    $mqtt->subscribe('dulieu', function ($topic, $message) use ($connector) {
+        echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);
+
+        // Xử lý chuỗi message nhận được
+        if (strpos($message, 'Humidity: ') !== false) {
+            preg_match('/Humidity:\s(\d+)\s%.*Temperature:\s([\d.]+)\s\*C.*Light\sLevel:\s(\d+)\slux/', $message, $matches);
+
+            if ($matches) {
+                $humidity = $matches[1];    // Lấy giá trị độ ẩm
+                $temperature = $matches[2]; // Lấy giá trị nhiệt độ
+                $lux = $matches[3];         // Lấy giá trị ánh sáng
+                date_default_timezone_set('Asia/Ho_Chi_Minh'); // Thiết lập múi giờ Việt Nam
+                $time = date('Y-m-d H:i:s'); // Lấy thời gian hiện tại
+
+                // Lưu dữ liệu vào cơ sở dữ liệu
+                saveToDatabase($humidity, $temperature, $lux, $time);
+
+                // Gửi tín hiệu qua WebSocket để cập nhật biểu đồ
+                $connector('ws://localhost:8081/ws', [], ['Origin' => 'http://localhost'])
+                    ->then(function(WebSocket $conn) use ($humidity, $temperature, $lux) {
+                        echo "Đã kết nối thành công tới WebSocket\n";
+
+                        $data = json_encode([
+                            'humidity' => $humidity,
+                            'temperature' => $temperature,
+                            'lux' => $lux
+                        ]);
+                        
+                        
+                        echo "Đang gửi dữ liệu tới WebSocket: $data\n"; // Ghi log trước khi gửi dữ liệu
+                        $conn->send($data); // Gửi dữ liệu qua WebSocket
+                        echo "Dữ liệu đã được gửi đi!\n"; // Ghi log khi gửi xong
+                        $conn->close();
+                    }, function($e) {
+                        echo "Không thể kết nối WebSocket: {$e->getMessage()}\n";
+                    });
+            }
+        } elseif (strpos($message, 'led1 on') !== false) {
+            echo "Nhận lệnh: Bật đèn LED 1\n";
+        } elseif (strpos($message, 'turned on') !== false) {
+            echo "Đèn LED 1 đã bật thành công\n";
+        }
+    }, 0); // Độ ưu tiên QoS 0
+
+    while (true) {
+        $mqtt->loop();  // Continuously listen for new messages
+        usleep(100000); // Delay to avoid high CPU usage
+        echo "dang lien tuc nghe topic dulieu\n";
+    }
+} catch (Exception $e) {
+    echo "MQTT connection error: " . $e->getMessage() . "\n";
+}
 
 // Hàm lưu dữ liệu vào cơ sở dữ liệu
 function saveToDatabase($humidity, $temperature, $lux, $time) {
@@ -85,9 +104,9 @@ function saveToDatabase($humidity, $temperature, $lux, $time) {
         $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Chèn dữ liệu vào bảng sensor_data
-        $stmt = $pdo->prepare("INSERT INTO sensor_data (humidity, temperature, lux, time) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$humidity, $temperature, $lux, $time]);
+        // Chèn dữ liệu vào bảng tbl_data_sensor
+        $stmt = $pdo->prepare("INSERT INTO `tbl_data_sensor` (`id`, `humid`, `bright`, `temperature`, `time`) VALUES (NULL, ?, ?, ?, ?)");
+        $stmt->execute([$humidity, $lux, $temperature, $time]);
 
         echo "Đã lưu dữ liệu vào cơ sở dữ liệu.\n";
     } catch (PDOException $e) {

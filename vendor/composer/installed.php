@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '71abd7c7b93636546b5c9968f2c92d3ed681e45c',
+        'reference' => '65a5a73bfab25b4faf331f085f1cb5ca230caf92',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '71abd7c7b93636546b5c9968f2c92d3ed681e45c',
+            'reference' => '65a5a73bfab25b4faf331f085f1cb5ca230caf92',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -57,6 +57,24 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'myclabs/php-enum' => array(
+            'pretty_version' => '1.8.4',
+            'version' => '1.8.4.0',
+            'reference' => 'a867478eae49c9f59ece437ae7f9506bfaa27483',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../myclabs/php-enum',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'php-mqtt/client' => array(
+            'pretty_version' => 'v2.1.0',
+            'version' => '2.1.0.0',
+            'reference' => '82581417df4fa63a95c7584866a8fd2fdef53105',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../php-mqtt/client',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'psr/http-factory' => array(
             'pretty_version' => '1.1.0',
             'version' => '1.1.0.0',
@@ -86,6 +104,15 @@
             'provided' => array(
                 0 => '1.0',
             ),
+        ),
+        'psr/log' => array(
+            'pretty_version' => '3.0.2',
+            'version' => '3.0.2.0',
+            'reference' => 'f16e1d5863e37f8d8c2a01719f5b34baa2b714d3',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../psr/log',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'ralouphie/getallheaders' => array(
             'pretty_version' => '3.0.3',
