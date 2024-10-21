@@ -185,4 +185,7 @@ nav{
     color: rgb(81, 85, 88) ;
 }
 
-
+.status-text {
+    font-size: 12px;
+    color: gray;
+}

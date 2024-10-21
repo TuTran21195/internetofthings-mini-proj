@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (currentPage === 'dashboard') {
     // console.log("this is Dashboard view")
     drawChart(); // Gọi hàm vẽ biểu đồ & các thông số sensor mới nhất nếu là dashboard
+    getDeviceStatus(); // Lấy trạng thái bật/tắt mới nhất của thiết bị tr csdl
   } else if(currentPage === 'data-sensor' ) {
     getTableDataSensor();
   } else if (currentPage == 'action-history'){
@@ -129,10 +130,10 @@ ws.onclose = function() {
 
 ws.onmessage = function(event) { 
     // Nhận lệnh phản hồi từ Websocket
-    const message = event.data;
-    console.log(message)
-
-    if (message === 'updatechart') {
+    // const message = event.data;
+    // console.log(message)
+    const message = JSON.parse(event.data);
+    if (message.command === "updatechart")  {
       // Fetch new data and update chart
       fetch('be/getChartFromDB.php')
         .then(response => response.json())
@@ -148,18 +149,7 @@ ws.onmessage = function(event) {
       console.error('Nhận được lệnh từ Websocket:', message);
     }
 
-    // const newData = JSON.parse(event.data);
-    // console.log('Message from WebSocket server:', newData);
 
-    // if (newData.humidity && newData.temperature && newData.light) {
-    //     // Nếu nhận được dữ liệu từ cảm biến, cập nhật biểu đồ
-    //     console.log("Msg from sensor: ", newData);
-    //     addNewDataToChart(newData);
-    // } else if (newData.message) {
-    //     // Nếu nhận được lệnh điều khiển LED hoặc phản hồi, hiển thị thông báo
-    //     console.log("LED Message: ", newData.message);
-    //     // Có thể cập nhật trạng thái LED trên giao diện, ví dụ: document.getElementById('led-status').innerText = newData.message;
-    // }
 };
 
 // Function to update chart data
@@ -184,36 +174,83 @@ function updateChartData(chart, newData) {
 
 
 // remote devices
+function getDeviceStatus(){
+  fetch('be/getDeviceStatus.php')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('led1').checked = data.led1 === 'on';
+      document.getElementById('led2').checked = data.led2 === 'on';
+      document.getElementById('led3').checked = data.led3 === 'on';
+      // Hiển thị trạng thái thao tác với thiết bị {nó đang On hay OFF hoặc là Waiting, Loading, Failed to update}
+      document.getElementById('led1_status').textContent = data.led1 === 'on' ? 'On' : 'Off';
+      document.getElementById('led2_status').textContent = data.led2 === 'on' ? 'On' : 'Off';
+      document.getElementById('led3_status').textContent = data.led3 === 'on' ? 'On' : 'Off';
+    })
+    .catch(error => console.error('Error fetching device status:', error));
+}
 
-function remoteDevices(){
-  // Lắng nghe sự kiện click của nút switch
-  const ledSwitch = document.getElementById('ledSwitch');
-  ledSwitch.addEventListener('click', async () => {
-      if (ledSwitch.checked) {
-          // Nếu nút switch được bật(checked), thực hiện lưu vào cơ sở dữ liệu là on
-          try {
-              const response = await fetch('be/remoteDataSaveDB', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                      device: 'led',
-                      action: 'off', // Trạng thái off
-                      time: new Date().toISOString() // Thời gian hiện tại
-                  })
-              });
-              if (response.ok) {
-                  console.log('Dữ liệu đã được lưu vào cơ sở dữ liệu.');
-              } else {
-                  console.error('Lỗi khi lưu dữ liệu.');
-              }
-          } catch (error) {
-              console.error('Lỗi kết nối đến máy chủ.');
-          }
-      }
+function toggleDevice(device) { 
+  const switchElement = document.getElementById(device); // Lấy switch theo id (device)
+  const statusElement = document.getElementById(device + '_status'); // Lấy phần tử hiển thị trạng thái
+
+  const action = switchElement.checked ? 'on' : 'off'; // Nếu switch đang checked thì là 'on', ngược lại là 'off'
+  switchElement.checked = !switchElement.checked; // Trả lại trạng thái trước đó của switch
+  // Disable the switch và hiển thị trạng thái 'Waiting...'
+  switchElement.disabled = true;
+  statusElement.textContent = 'Waiting...';
+
+
+  // Gửi yêu cầu bật/tắt tới backend
+  fetch('be/updateDeviceAction.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ device: device, action: action }) // Gửi device và action dưới dạng JSON
+  })
+  .then(response => response.json())
+  .then(data => { 
+    if (data.success) { // Nếu yêu cầu gửi đến BE thành công
+      console.log("Đã gửi tín hiệu bật/tắt đến BE. Đang chờ phản hồi...");
+
+      // Đặt thời gian timeout (60 giây) nếu không nhận phản hồi từ WebSocket
+      let timeoutId = setTimeout(() => {
+        switchElement.disabled = false; // Re-enable switch để người dùng có thể thao tác lại
+        statusElement.textContent = "Error: No response"; // Hiển thị lỗi
+        console.error("Không nhận được phản hồi từ server trong thời gian cho phép.");
+      }, 60000); // 60 giây timeout
+
+      // Lắng nghe phản hồi từ WebSocket
+      ws.onmessage = function(event) {
+        console.log('Nhận được phản hồi từ WebSocket:', event.data);
+        
+        // Xử lý thông điệp nhận được từ WebSocket
+        const message = JSON.parse(event.data);
+
+        // Nếu thiết bị và trạng thái khớp với yêu cầu đã gửi
+        if (message.device === device && message.status === `${action} success`) {
+          clearTimeout(timeoutId); // Hủy bỏ timeout khi nhận được phản hồi
+
+          // Cập nhật trạng thái switch sau khi phản hồi thành công
+          switchElement.disabled = false; // Cho phép người dùng thao tác lại
+          statusElement.textContent = action === 'on' ? 'On' : 'Off'; // Cập nhật trạng thái trên giao diện
+          console.log(`${device} đã ${action} thành công`);
+        }
+      };
+
+    } else {
+      // Trong trường hợp lỗi khi gửi yêu cầu đến BE
+      statusElement.textContent = 'Failed to update'; // Hiển thị lỗi
+      switchElement.disabled = false; // Cho phép người dùng thao tác lại
+    }
+  })
+  .catch(error => {
+    // Xử lý lỗi khi gửi yêu cầu
+    console.error('Lỗi khi gửi yêu cầu đến backend:', error);
+    statusElement.textContent = 'Error: Request failed'; // Hiển thị lỗi
+    switchElement.disabled = false; // Cho phép người dùng thao tác lại
   });
 }
+
+
 
 // ============================= DATA SENSOR VIEW ==============================
 

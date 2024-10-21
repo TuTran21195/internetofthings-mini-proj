@@ -6,42 +6,6 @@ chart
 remote board 
 -->
 
-<?php
-  
-    // Kết nối cơ sở dữ liệu và hiển thị dữ liệu
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "iot_database";
-
-    $conn = new mysqli($servername, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die("Kết nối csdl thất bại: " . $conn->connect_error);
-    }
-
-// $sql = "SELECT * FROM tbl_data_sensor ORDER BY id DESC LIMIT 1";
-// $result = $conn->query($sql);
-
-// $latest_bright = -1;
-// $latest_humid = -1;
-// $latest_tem = -1;
-
-
-// if ($result->num_rows > 0) {
-//     // Lấy dữ liệu dòng cuối cùng
-//     $row = $result->fetch_assoc();
-    
-//     $latest_humid = $row['humid'];
-//     $latest_bright = $row['bright'];
-//     $latest_tem = $row['temperature'];
-//     // echo "$latest_bright $latest_humid $latest_tem";
-// } 
-
-// // remote devices
-
-?>
-
 
 <div class="container">
   <!-- Latest-measurement -->
@@ -82,84 +46,22 @@ remote board
     <div class="col remote-devices">
       BẢNG ĐIỀU KHIỂN THIẾT BỊ
       <div class="form-check form-switch">
-        <?php 
-          // Lấy thông tin trạng thái của thiết bị đèn LED
-          $sql = "SELECT action FROM tbl_action_history WHERE devices = 'led' ORDER BY id DESC LIMIT 1";
-          $result = $conn->query($sql);
-
-          if ($result->num_rows > 0) {
-              $row = $result->fetch_assoc();
-              $ledStatus = $row['action'];
-
-              // Hiển thị nút switch đã kiểm tra (checked) nếu trạng thái là "bật"
-              if ($ledStatus === 'on') {
-                  echo '<input class="form-check-input" id="led" type="checkbox" role="switch" checked/>';
-              } else {
-                echo '<input class="form-check-input" id="led" type="checkbox" role="switch"/>';
-              }
-          } else {
-              // Thiết bị không tồn tại trong cơ sở dữ liệu
-              echo '<input class="form-check-input" id="led" type="checkbox" role="switch"/>';
-          }
-        ?>
-        <label class="form-check-label" for="flexSwitchCheckDefault">Đèn (led)</label>
+        <input class="form-check-input" type="checkbox" id="led1" onclick="toggleDevice('led1')">
+        <label class="form-check-label" for="led1">LED 1</label>
+        <div id="led1_status" class="status-text">Loading...</div>
       </div>
+
       <div class="form-check form-switch">
-      <?php 
-          // Lấy thông tin trạng thái của thiết bị đèn LED
-          $sql = "SELECT action FROM tbl_action_history WHERE devices = 'humidifier' ORDER BY id DESC LIMIT 1";
-          $result = $conn->query($sql);
-
-          if ($result->num_rows > 0) {
-              $row = $result->fetch_assoc();
-              $ledStatus = $row['action'];
-
-              // Hiển thị nút switch đã kiểm tra (checked) nếu trạng thái là "bật"
-              if ($ledStatus === 'on') {
-                  echo '<input class="form-check-input" id="humid" type="checkbox" role="switch" checked/>';
-              } else {
-                echo '<input class="form-check-input" id="humid" type="checkbox" role="switch"/>';
-            }
-          } else {
-              // Thiết bị không tồn tại trong cơ sở dữ liệu
-              echo '<input class="form-check-input" id="humid" type="checkbox" role="switch"/>';
-          }
-        ?>
-        <label class="form-check-label" for="flexSwitchCheckChecked">Máy phun sương (Air humidifier)</label>
-      </div> 
-      <div class="form-check form-switch">
-      <!-- <i class="fa-solid fa-fan"></i> -->
-
-        <?php 
-          // Lấy thông tin trạng thái của thiết bị đèn LED
-          $sql = "SELECT action FROM tbl_action_history WHERE devices = 'fan' ORDER BY id DESC LIMIT 1";
-          $result = $conn->query($sql);
-
-          if ($result->num_rows > 0) {
-              $row = $result->fetch_assoc();
-              $ledStatus = $row['action'];
-
-              // Hiển thị nút switch đã kiểm tra (checked) nếu trạng thái là "bật"
-              if ($ledStatus === 'on') {
-                  echo '<input class="form-check-input" id="fan" type="checkbox" role="switch" checked/>';
-              } else {
-                echo '<input class="form-check-input" id="fan" type="checkbox" role="switch"/>';
-              }
-          } else {
-              // Thiết bị chưa tồn tại trong cơ sở dữ liệu
-              echo '<input class="form-check-input" id="fan" type="checkbox" role="switch"/>';
-          }
-        ?>
-        <label class="form-check-label" for="flexSwitchCheckChecked">Quạt (fan)</label>
+        <input class="form-check-input" type="checkbox" id="led2" onclick="toggleDevice('led2')">
+        <label class="form-check-label" for="led2">LED 2</label>
+        <div id="led2_status" class="status-text">Loading...</div>
       </div>
-      <!-- <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDisabled" disabled />
-          <label class="form-check-label" for="flexSwitchCheckDisabled">Disabled switch checkbox input</label>
-        </div>
-        <div class="form-check form-switch">
-          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckCheckedDisabled" checked disabled />
-          <label class="form-check-label" for="flexSwitchCheckCheckedDisabled">Disabled checked switch checkbox input</label>
-        </div> -->
+
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="led3" onclick="toggleDevice('led3')">
+        <label class="form-check-label" for="led3">LED 3</label>
+        <div id="led3_status" class="status-text">Loading...</div>
+      </div>
     </div>
 
     <!-- CHART -->

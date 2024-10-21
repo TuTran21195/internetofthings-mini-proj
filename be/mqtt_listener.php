@@ -15,7 +15,7 @@ $port = 2003;                // Cổng MQTT
 $clientId = 'php-mqtt-listener';     // ID client MQTT
 
 
-// Tạo vòng lặp sự kiện ReactPHP
+// Tạo vòng lặp sự kiện ReactPHP cho việc liên tục lắng nghe MQTT và Websocket
 $loop = Factory::create();
 $connector = new Connector($loop);
 
@@ -60,7 +60,7 @@ try {
 
                 // Sau khi lưu vào database, kết nối WebSocket để gửi dữ liệu
                 // Gửi tín hiệu qua WebSocket để cập nhật biểu đồ
-                $updateChartMsg = "updatechart";
+                $updateChartMsg = json_encode(['command' => 'updatechart' ]);
                 sendDataOverWebSocket($connector, $loop, $updateChartMsg);
             }
         } elseif (strpos($message, 'Loi doc cam bien DHT11! - ') !== false) { // Loi doc cam bien DHT11! - Light Level: 300 lux
@@ -78,13 +78,26 @@ try {
 
                 // Sau khi lưu vào database, kết nối WebSocket để gửi dữ liệu
                 // Gửi tín hiệu qua WebSocket để cập nhật biểu đồ
-                $updateChartMsg = "updatechart";
+                $updateChartMsg = json_encode(['command' => 'updatechart' ]);
                 sendDataOverWebSocket($connector, $loop, $updateChartMsg);
             }
-        } elseif (strpos($message, 'led') !== false) { //Xu ly khi doc LED????????????
-            echo "Nhận lệnh: Bật đèn LED 1\n";
-        } elseif (strpos($message, 'turned ') !== false) { // turned on/off led1/2/3 vd: turned on led1
-            echo "Đèn LED 1 đã bật thành công\n";
+        } elseif (strpos($message, 'turned ') !== false) { // respond to action request: turned on/off led1/2/3 vd: turned on led1 -> bật tắt thành công!
+            //lưu action vào csdl sau khi đã nhận đc tín hiệu bật thành công
+            echo "nhan duoc lenh bat tat";
+            if (preg_match('/\b(\w+)\s+(\w+)$/', $message, $matches)) {
+                $device = $matches[1]; // led1, led2, hoặc led3
+                $action = $matches[2]; // on hoặc off
+            
+                saveActionToDB($device, $action); 
+
+                $respondMsg = json_encode([
+                    'device' => $device,
+                    'status' => $action.' success' ]);
+                echo "lenh: $respondMsg";
+                //gửi tín hiệu thành công đến FE
+                sendDataOverWebSocket($connector, $loop, $message); // đổi thành $respondMsg
+            }
+            
         }
     }, 0); // Độ ưu tiên QoS 0
 
@@ -118,12 +131,32 @@ function saveToDatabase($humidity, $temperature, $lux, $time) {
     }
 }
 
+function saveActionToDB($device, $action){
+    $host = 'localhost'; // Địa chỉ database
+    $db = 'iot_database'; // Tên database
+    $user = 'root';        // Tài khoản database
+    $pass = '';            // Mật khẩu database (nếu có)
+
+    try {
+        // Save the action to the database
+        $pdo = new PDO("mysql:host=localhost;dbname=iot_database", "root", "");
+        $stmt = $pdo->prepare("INSERT INTO `tbl_action_history` (`id`, `devices`, `action`, `time`) VALUES (NULL, ? , ? , NOW())");
+
+        $stmt->execute([$device, $action]);
+
+        echo "Đã lưu Action vào cơ sở dữ liệu.\n";
+    } catch (PDOException $e) {
+        echo "Lỗi khi lưu Action: " . $e->getMessage() . "\n";
+    }
+}
+
 // Hàm kết nối và gửi tín hiệu lệnh đến FE thông qua WebSocket
 function sendDataOverWebSocket($connector, $loop, $updateChartMsg) {
     $connector('ws://localhost:8081/ws')
-    ->then(function($conn) {
+    ->then(function($conn) use ($updateChartMsg){
         echo "Kết nối WebSocket thành công\n";
-        $conn->send('updatechart');
+        // $conn->send('updatechart');
+        $conn->send($updateChartMsg);
         $conn->close();
     }, function($e) {
         echo "Không thể kết nối WebSocket: {$e->getMessage()}\n";
