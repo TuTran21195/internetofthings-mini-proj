@@ -44,7 +44,8 @@ try {
         echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);
 
         // Xử lý chuỗi message nhận được
-        if (strpos($message, 'Humidity: ') !== false) {
+        if (strpos($message, 'Humidity: ') !== false) { //Chuỗi vd Humidity: 68 % Temperature: 23 *C Light Level: 320 lux
+            // mosquitto_pub -p 2003 -t "dulieu" -u "doanthitramy" -P "123" -m "Humidity: 58 % Temperature: 39 *C Light Level: 310 lux"
             preg_match('/Humidity:\s(\d+)\s%.*Temperature:\s([\d.]+)\s\*C.*Light\sLevel:\s(\d+)\slux/', $message, $matches);
 
             if ($matches) {
@@ -62,9 +63,27 @@ try {
                 $updateChartMsg = "updatechart";
                 sendDataOverWebSocket($connector, $loop, $updateChartMsg);
             }
-        } elseif (strpos($message, 'led1 on') !== false) {
+        } elseif (strpos($message, 'Loi doc cam bien DHT11! - ') !== false) { // Loi doc cam bien DHT11! - Light Level: 300 lux
+            //mosquitto_pub -p 2003 -t "dulieu" -u "doanthitramy" -P "123" -m "Loi doc cam bien DHT11! - Light Level: 300 lux"
+            preg_match('/Light\sLevel:\s(\d+)\slux/', $message, $matches);
+            if ($matches) {
+                $lux = $matches[1];  // Lấy giá trị ánh sáng]
+                echo "anh sang do duoc: $lux";
+                $humidity = -1;    // Lấy giá trị độ ẩm
+                $temperature = -1; // Lấy giá trị nhiệt độ
+                date_default_timezone_set('Asia/Ho_Chi_Minh'); // Thiết lập múi giờ Việt Nam
+                $time = date('Y-m-d H:i:s'); // Lấy thời gian hiện tại
+                // Lưu dữ liệu vào cơ sở dữ liệu
+                saveToDatabase($humidity, $temperature, $lux, $time);
+
+                // Sau khi lưu vào database, kết nối WebSocket để gửi dữ liệu
+                // Gửi tín hiệu qua WebSocket để cập nhật biểu đồ
+                $updateChartMsg = "updatechart";
+                sendDataOverWebSocket($connector, $loop, $updateChartMsg);
+            }
+        } elseif (strpos($message, 'led') !== false) { //Xu ly khi doc LED????????????
             echo "Nhận lệnh: Bật đèn LED 1\n";
-        } elseif (strpos($message, 'turned on') !== false) {
+        } elseif (strpos($message, 'turned ') !== false) { // turned on/off led1/2/3 vd: turned on led1
             echo "Đèn LED 1 đã bật thành công\n";
         }
     }, 0); // Độ ưu tiên QoS 0

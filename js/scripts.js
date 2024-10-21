@@ -1,39 +1,9 @@
-function loadView(view) {
-    fetch(`views/${view}.php`)
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('content').innerHTML = data;
-            content.setAttribute('current-view', view); // Đặt thuộc tính current-view
-            if (view === 'dashboard') {
-                // callback(); // Thực thi callback sau khi nội dung đã được tải
-                // console.log("this is Dashboard view")
-                circularProgressMask();
-                drawChart(); // Gọi hàm vẽ biểu đồ nếu là dashboard
-            } else if(view === 'data-sensor') {
-              getTableDataSensor();
-            } else if (view == 'action-history'){
-              getTableActionHistory();
-            }
-            // nạp trang nào thì trên nav Bar trang đó sẽ được active, các trang còn lại sẽ không được có class active nữa
-            listofview = document.querySelectorAll(".nav-link").forEach(link => {
-                if(link.id === view)
-                    link.classList.add('active')
-                else
-                    link.classList.remove('active')
-            });
-            
-        })
-        .catch(error => console.error('Error loading view:', error));
-}
-
 
 //Khi load content cho web thì:
 document.addEventListener('DOMContentLoaded', () => {
   if (currentPage === 'dashboard') {
-    // callback(); // Thực thi callback sau khi nội dung đã được tải
     // console.log("this is Dashboard view")
-    circularProgressMask();
-    drawChart(); // Gọi hàm vẽ biểu đồ nếu là dashboard
+    drawChart(); // Gọi hàm vẽ biểu đồ & các thông số sensor mới nhất nếu là dashboard
   } else if(currentPage === 'data-sensor' ) {
     getTableDataSensor();
   } else if (currentPage == 'action-history'){
@@ -63,7 +33,7 @@ function circularProgressMask(){
 }
 
 
-// <!-- Drawing chart in Dashboard-->
+// <!-- Drawing chart & latest sensor in Dashboard-->
 let chart;
 function drawChart() {
   // console.log('start fetch')
@@ -72,6 +42,17 @@ function drawChart() {
   .then(data  => {
       // console.log("Raw response:", data);
       if (data) {
+        // Lấy dòng dữ liệu cuối cùng để đưa ra latestData 3 cái vòng tròn
+        let latestData = data[data.length - 1];
+          
+        // Cập nhật giá trị cho các thẻ div
+        document.getElementById("latest_bright_num").textContent = latestData.bright;
+        document.getElementById("latest_humid_num").textContent = latestData.humid;
+        document.getElementById("latest_tem_num").textContent = latestData.temperature;
+        //vẽ lại cái vòng tròn
+        circularProgressMask();
+
+        //Bắt đầu vẽ chart
         let labels = data.map(item => item.time);
         let humidData = data.map(item => parseFloat(item.humid));
         let brightData = data.map(item => parseFloat(item.bright));
@@ -188,6 +169,16 @@ function updateChartData(chart, newData) {
   chart.data.datasets[1].data = newData.map(item => parseFloat(item.humid));       // Độ ẩm
   chart.data.datasets[2].data = newData.map(item => parseFloat(item.bright));      // Ánh sáng
   chart.update(); // Update the chart
+
+  // Lấy dòng dữ liệu cuối cùng để cập nhật latestData 3 cái vòng tròn
+  let latestData = newData[newData.length - 1];
+        
+  // Cập nhật giá trị cho các thẻ div
+  document.getElementById("latest_bright_num").textContent = latestData.bright;
+  document.getElementById("latest_humid_num").textContent = latestData.humid;
+  document.getElementById("latest_tem_num").textContent = latestData.temperature;
+  //vẽ lại cái vòng tròn
+  circularProgressMask();
 }
 
 

@@ -20,25 +20,25 @@ remote board
         die("Kết nối csdl thất bại: " . $conn->connect_error);
     }
 
-$sql = "SELECT * FROM tbl_data_sensor ORDER BY id DESC LIMIT 1";
-$result = $conn->query($sql);
+// $sql = "SELECT * FROM tbl_data_sensor ORDER BY id DESC LIMIT 1";
+// $result = $conn->query($sql);
 
-$latest_bright = -1;
-$latest_humid = -1;
-$latest_tem = -1;
+// $latest_bright = -1;
+// $latest_humid = -1;
+// $latest_tem = -1;
 
 
-if ($result->num_rows > 0) {
-    // Lấy dữ liệu dòng cuối cùng
-    $row = $result->fetch_assoc();
+// if ($result->num_rows > 0) {
+//     // Lấy dữ liệu dòng cuối cùng
+//     $row = $result->fetch_assoc();
     
-    $latest_humid = $row['humid'];
-    $latest_bright = $row['bright'];
-    $latest_tem = $row['temperature'];
-    // echo "$latest_bright $latest_humid $latest_tem";
-} 
+//     $latest_humid = $row['humid'];
+//     $latest_bright = $row['bright'];
+//     $latest_tem = $row['temperature'];
+//     // echo "$latest_bright $latest_humid $latest_tem";
+// } 
 
-// remote devices
+// // remote devices
 
 ?>
 
@@ -51,7 +51,7 @@ if ($result->num_rows > 0) {
         <div class="circular-progress light">
           <div class="circular-progress__mask" id = "circular-progress__mask-bright"></div>
           <div class="circular-progress__inner" id = "latest_bright_bg"></div>
-          <div class="circular-progress__inner_num" id = "latest_bright_num"><?php echo $latest_bright ?></div>
+          <div class="circular-progress__inner_num" id = "latest_bright_num"></div>
         </div>
         <span class="text">Light (lux)</span>
       </div>
@@ -61,7 +61,7 @@ if ($result->num_rows > 0) {
         <div class="circular-progress humid">
           <div class="circular-progress__mask" id = "circular-progress__mask-humid"></div>
           <div class="circular-progress__inner" id = "latest_humid_bg">
-            <div class="circular-progress__inner_num" id = "latest_humid_num"><?php echo $latest_humid ?></div>
+            <div class="circular-progress__inner_num" id = "latest_humid_num"></div>
           </div>
         </div>
         <span class="text">Humid (%)</span>
@@ -72,7 +72,7 @@ if ($result->num_rows > 0) {
         <div class="circular-progress tem">
           <div class="circular-progress__mask" id = "circular-progress__mask-tem" ></div>
           <div class="circular-progress__inner" id = "latest_tem_bg">
-            <div class="circular-progress__inner_num" id = "latest_tem_num"><?php echo $latest_tem ?></div>
+            <div class="circular-progress__inner_num" id = "latest_tem_num"></div>
           </div>
         </div>
         <span class="text">Temperature (Celsius)</span>
@@ -162,7 +162,7 @@ if ($result->num_rows > 0) {
         </div> -->
     </div>
 
-    <!-- CHART & remote -->
+    <!-- CHART -->
     <div class="row">
       <div class="col">
         <div style="width: 100%; height: 500px">
