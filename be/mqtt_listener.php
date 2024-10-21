@@ -40,7 +40,7 @@ try {
     echo "ket noi mqtt thanh cong\n"; 
 
     // Hàm xử lý khi nhận được message từ MQTT
-    $mqtt->subscribe('dulieu', function ($topic, $message) use ($connector) {
+    $mqtt->subscribe('dulieu', function ($topic, $message) use ($connector,$loop) {
         echo sprintf("Received message on topic [%s]: %s\n", $topic, $message);
 
         // Xử lý chuỗi message nhận được
@@ -57,25 +57,10 @@ try {
                 // Lưu dữ liệu vào cơ sở dữ liệu
                 saveToDatabase($humidity, $temperature, $lux, $time);
 
+                // Sau khi lưu vào database, kết nối WebSocket để gửi dữ liệu
                 // Gửi tín hiệu qua WebSocket để cập nhật biểu đồ
-                $connector('ws://localhost:8081/ws', [], ['Origin' => 'http://localhost'])
-                    ->then(function(WebSocket $conn) use ($humidity, $temperature, $lux) {
-                        echo "Đã kết nối thành công tới WebSocket\n";
-
-                        $data = json_encode([
-                            'humidity' => $humidity,
-                            'temperature' => $temperature,
-                            'lux' => $lux
-                        ]);
-                        
-                        
-                        echo "Đang gửi dữ liệu tới WebSocket: $data\n"; // Ghi log trước khi gửi dữ liệu
-                        $conn->send($data); // Gửi dữ liệu qua WebSocket
-                        echo "Dữ liệu đã được gửi đi!\n"; // Ghi log khi gửi xong
-                        $conn->close();
-                    }, function($e) {
-                        echo "Không thể kết nối WebSocket: {$e->getMessage()}\n";
-                    });
+                $updateChartMsg = "updatechart";
+                sendDataOverWebSocket($connector, $loop, $updateChartMsg);
             }
         } elseif (strpos($message, 'led1 on') !== false) {
             echo "Nhận lệnh: Bật đèn LED 1\n";
@@ -112,6 +97,19 @@ function saveToDatabase($humidity, $temperature, $lux, $time) {
     } catch (PDOException $e) {
         echo "Lỗi khi lưu dữ liệu: " . $e->getMessage() . "\n";
     }
+}
+
+// Hàm kết nối và gửi tín hiệu lệnh đến FE thông qua WebSocket
+function sendDataOverWebSocket($connector, $loop, $updateChartMsg) {
+    $connector('ws://localhost:8081/ws')
+    ->then(function($conn) {
+        echo "Kết nối WebSocket thành công\n";
+        $conn->send('updatechart');
+        $conn->close();
+    }, function($e) {
+        echo "Không thể kết nối WebSocket: {$e->getMessage()}\n";
+    });
+    $loop->run();
 }
 
 // Chạy vòng lặp sự kiện ReactPHP

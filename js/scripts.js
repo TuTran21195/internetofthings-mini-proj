@@ -64,6 +64,7 @@ function circularProgressMask(){
 
 
 // <!-- Drawing chart in Dashboard-->
+let chart;
 function drawChart() {
   // console.log('start fetch')
   fetch('be/getChartFromDB.php')
@@ -78,7 +79,7 @@ function drawChart() {
 
         const dashboardChart = document.getElementById("chart-dashboard")
         // console.log(dashboardChart)
-        const chart = new Chart(dashboardChart, {
+        chart = new Chart(dashboardChart, {
           type: "line",
           data: {
             labels: labels,
@@ -146,44 +147,48 @@ ws.onclose = function() {
 };
 
 ws.onmessage = function(event) { 
-    // Nhận dữ liệu mới từ WebSocket server
-    const newData = JSON.parse(event.data);
-    console.log('Message from WebSocket server:', newData);
+    // Nhận lệnh phản hồi từ Websocket
+    const message = event.data;
+    console.log(message)
 
-    if (newData.humidity && newData.temperature && newData.light) {
-        // Nếu nhận được dữ liệu từ cảm biến, cập nhật biểu đồ
-        console.log("Msg from sensor: ", newData);
-        addNewDataToChart(newData);
-    } else if (newData.message) {
-        // Nếu nhận được lệnh điều khiển LED hoặc phản hồi, hiển thị thông báo
-        console.log("LED Message: ", newData.message);
-        // Có thể cập nhật trạng thái LED trên giao diện, ví dụ: document.getElementById('led-status').innerText = newData.message;
+    if (message === 'updatechart') {
+      // Fetch new data and update chart
+      fetch('be/getChartFromDB.php')
+        .then(response => response.json())
+        .then(data => {
+          if (chart) {
+            updateChartData(chart, data); // Update the chart with new data
+          } else {
+            console.error('Chart is not initialized.');
+          }
+        })
+        .catch(error => console.error('Error fetching new data:', error));
+    }else{
+      console.error('Nhận được lệnh từ Websocket:', message);
     }
+
+    // const newData = JSON.parse(event.data);
+    // console.log('Message from WebSocket server:', newData);
+
+    // if (newData.humidity && newData.temperature && newData.light) {
+    //     // Nếu nhận được dữ liệu từ cảm biến, cập nhật biểu đồ
+    //     console.log("Msg from sensor: ", newData);
+    //     addNewDataToChart(newData);
+    // } else if (newData.message) {
+    //     // Nếu nhận được lệnh điều khiển LED hoặc phản hồi, hiển thị thông báo
+    //     console.log("LED Message: ", newData.message);
+    //     // Có thể cập nhật trạng thái LED trên giao diện, ví dụ: document.getElementById('led-status').innerText = newData.message;
+    // }
 };
 
-// Hàm thêm dữ liệu mới vào biểu đồ
-function addNewDataToChart(newData) {
-    // Thêm dữ liệu mới vào biểu đồ (temperature, humidity, light)
-    chart.data.datasets[0].data.push(newData.temperature);
-    chart.data.datasets[1].data.push(newData.humidity);
-    chart.data.datasets[2].data.push(newData.light);
-
-    // Thêm timestamp mới
-    const currentTime = new Date().toLocaleTimeString(); // Lấy thời gian hiện tại
-    chart.data.labels.push(currentTime);
-
-    // Xóa dữ liệu cũ nhất nếu có hơn 10 điểm dữ liệu
-    if (chart.data.labels.length > 10) {
-        chart.data.labels.shift(); // Xóa timestamp cũ nhất
-        chart.data.datasets[0].data.shift(); // Xóa nhiệt độ cũ nhất
-        chart.data.datasets[1].data.shift(); // Xóa độ ẩm cũ nhất
-        chart.data.datasets[2].data.shift(); // Xóa ánh sáng cũ nhất
-    }
-
-    // Vẽ lại biểu đồ
-    chart.update();
+// Function to update chart data
+function updateChartData(chart, newData) {
+  chart.data.labels = newData.map(item => item.time);
+  chart.data.datasets[0].data = newData.map(item => parseFloat(item.temperature)); // Nhiệt độ
+  chart.data.datasets[1].data = newData.map(item => parseFloat(item.humid));       // Độ ẩm
+  chart.data.datasets[2].data = newData.map(item => parseFloat(item.bright));      // Ánh sáng
+  chart.update(); // Update the chart
 }
-
 
 
 
