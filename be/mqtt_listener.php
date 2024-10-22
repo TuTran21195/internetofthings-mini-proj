@@ -95,7 +95,7 @@ try {
                     'status' => $action.' success' ]);
                 echo "lenh: $respondMsg";
                 //gửi tín hiệu thành công đến FE
-                sendDataOverWebSocket($connector, $loop, $message); // đổi thành $respondMsg
+                sendDataOverWebSocket($connector, $loop, $respondMsg); // đổi thành $respondMsg
             }
             
         }

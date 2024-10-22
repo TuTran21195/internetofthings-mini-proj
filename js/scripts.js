@@ -145,7 +145,12 @@ ws.onmessage = function(event) {
           }
         })
         .catch(error => console.error('Error fetching new data:', error));
-    }else{
+    }
+    else if (message.device) {
+      // Xử lý phản hồi từ thiết bị (khi toggleDevice gửi lệnh)
+      handleDeviceResponse(message);
+    } 
+    else{
       console.error('Nhận được lệnh từ Websocket:', message);
     }
 
@@ -189,6 +194,27 @@ function getDeviceStatus(){
     .catch(error => console.error('Error fetching device status:', error));
 }
 
+let timeoutId; 
+
+// Hàm xử lý phản hồi từ thiết bị
+function handleDeviceResponse(message) {
+  const device = message.device; // Lấy tên thiết bị
+  const action = message.status.includes('on') ? 'on' : 'off'; // Xác định trạng thái bật/tắt
+  
+  const switchElement = document.getElementById(device);
+  const statusElement = document.getElementById(device + '_status');
+
+  if (message.status === `${action} success`) {
+    clearTimeout(timeoutId); // Hủy bỏ timeout khi nhận được phản hồi
+
+    // Cập nhật trạng thái switch sau khi phản hồi thành công
+    switchElement.checked = !switchElement.checked; // Đưa hình ảnh cửa switch nó sang trạng thái mới
+    switchElement.disabled = false; // Cho phép người dùng thao tác lại
+    statusElement.textContent = action === 'on' ? 'On' : 'Off'; // Cập nhật trạng thái trên giao diện
+    console.log(`${device} đã ${action} thành công`);
+  }
+}
+
 function toggleDevice(device) { 
   const switchElement = document.getElementById(device); // Lấy switch theo id (device)
   const statusElement = document.getElementById(device + '_status'); // Lấy phần tử hiển thị trạng thái
@@ -212,29 +238,12 @@ function toggleDevice(device) {
       console.log("Đã gửi tín hiệu bật/tắt đến BE. Đang chờ phản hồi...");
 
       // Đặt thời gian timeout (60 giây) nếu không nhận phản hồi từ WebSocket
-      let timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         switchElement.disabled = false; // Re-enable switch để người dùng có thể thao tác lại
-        statusElement.textContent = "Error: No response"; // Hiển thị lỗi
+        statusElement.textContent = "Error: Timeout!"; // Hiển thị lỗi
         console.error("Không nhận được phản hồi từ server trong thời gian cho phép.");
       }, 60000); // 60 giây timeout
 
-      // Lắng nghe phản hồi từ WebSocket
-      ws.onmessage = function(event) {
-        console.log('Nhận được phản hồi từ WebSocket:', event.data);
-        
-        // Xử lý thông điệp nhận được từ WebSocket
-        const message = JSON.parse(event.data);
-
-        // Nếu thiết bị và trạng thái khớp với yêu cầu đã gửi
-        if (message.device === device && message.status === `${action} success`) {
-          clearTimeout(timeoutId); // Hủy bỏ timeout khi nhận được phản hồi
-
-          // Cập nhật trạng thái switch sau khi phản hồi thành công
-          switchElement.disabled = false; // Cho phép người dùng thao tác lại
-          statusElement.textContent = action === 'on' ? 'On' : 'Off'; // Cập nhật trạng thái trên giao diện
-          console.log(`${device} đã ${action} thành công`);
-        }
-      };
 
     } else {
       // Trong trường hợp lỗi khi gửi yêu cầu đến BE
