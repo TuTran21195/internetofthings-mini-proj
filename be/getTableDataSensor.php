@@ -1,4 +1,5 @@
 <?php
+
     header('Content-Type: application/json');
     // Kết nối cơ sở dữ liệu và hiển thị dữ liệu
     $servername = "localhost";
@@ -7,6 +8,10 @@
     $dbname = "iot_database";
 
     $conn = new mysqli($servername, $username, $password, $dbname);
+    // Check for connection errors
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
 
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;

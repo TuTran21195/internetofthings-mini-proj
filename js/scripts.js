@@ -196,7 +196,7 @@ function getDeviceStatus(){
 
 let timeoutId; 
 
-// Hàm xử lý phản hồi từ thiết bị
+// Hàm xử lý sau khi nhận đc phản hồi từ thiết bị HW via Websocket
 function handleDeviceResponse(message) {
   const device = message.device; // Lấy tên thiết bị
   const action = message.status.includes('on') ? 'on' : 'off'; // Xác định trạng thái bật/tắt
@@ -215,6 +215,7 @@ function handleDeviceResponse(message) {
   }
 }
 
+//Hàm xử lý sau khi click vào switch bật tắt thiết bị trên giao diện dashboard
 function toggleDevice(device) { 
   const switchElement = document.getElementById(device); // Lấy switch theo id (device)
   const statusElement = document.getElementById(device + '_status'); // Lấy phần tử hiển thị trạng thái
@@ -242,7 +243,7 @@ function toggleDevice(device) {
         switchElement.disabled = false; // Re-enable switch để người dùng có thể thao tác lại
         statusElement.textContent = "Error: Timeout!"; // Hiển thị lỗi
         console.error("Không nhận được phản hồi từ server trong thời gian cho phép.");
-      }, 60000); // 60 giây timeout
+      }, 300000); // 300 giây timeout (~ 5 phút)
 
 
     } else {
@@ -264,7 +265,7 @@ function toggleDevice(device) {
 // ============================= DATA SENSOR VIEW ==============================
 
 function getTableDataSensor(){
-  console.log('123 this is one getTableDataSensor');
+  console.log('this is one getTableDataSensor');
   // console.log(document.getElementById('datestart').value);
   
   $('#data-sensor-table').DataTable({
@@ -273,18 +274,23 @@ function getTableDataSensor(){
     "destroy": true, // Thêm dòng này để hủy bảng cũ trước khi tạo bảng mới
     "ajax": {
       "url": "be/data_sensor_processing.php",
-      // "type": "POST",
-      // "data": {
+      "type": "POST",
+      "data": {
+            
       //     "startDate": datestart,
       //     "endDate": dateEnd
-      // }
-    }
+
+      }
+    },
+    language: {
+      search: "Tìm kiếm FE:"
+    },
   });
 }
 
 
 function getTableDataSensorFilteringTime(){
-  console.log('123 this is one');
+  console.log('123 this is getTableDataSensorFilteringTime');
   console.log(convertFlatpickrTime(document.getElementById('datestart').value));
   
   // var startDate = $('#startDate').val();

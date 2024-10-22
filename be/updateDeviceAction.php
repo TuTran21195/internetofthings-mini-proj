@@ -15,9 +15,9 @@ $data = json_decode(file_get_contents('php://input'), true);
 $device = $data['device'];
 $action = $data['action'];
 
-$server   = '192.168.1.7';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
-    //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
-$port = 2003;                // Cổng MQTT
+$server   = '192.168.180.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
+                                //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
+$port = 2003;    // Cổng MQTT
 $clientId = 'php-mqtt-listener2';     // ID client MQTT: cái này nó phải khác cái ID bên mqtt_listener.php vì 
                                     //nếu không nó sẽ không phân biệt được là đóng kết nối mqtt với von client nào
 

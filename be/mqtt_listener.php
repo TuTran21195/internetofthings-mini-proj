@@ -9,15 +9,15 @@ use Ratchet\Client\WebSocket;
 use React\EventLoop\Factory;
 use Ratchet\Client\Connector;
 
-$server   = '192.168.1.7';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
-    //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
+$server   = '192.168.180.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
+                                //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
 $port = 2003;                // Cổng MQTT
 $clientId = 'php-mqtt-listener';     // ID client MQTT
 
 
 // Tạo vòng lặp sự kiện ReactPHP cho việc liên tục lắng nghe MQTT và Websocket
 $loop = Factory::create();
-$connector = new Connector($loop);
+$connector = new Connector($loop); //connector cho Websocket
 
 
 
@@ -46,7 +46,7 @@ try {
         // Xử lý chuỗi message nhận được
         if (strpos($message, 'Humidity: ') !== false) { //Chuỗi vd Humidity: 68 % Temperature: 23 *C Light Level: 320 lux
             // mosquitto_pub -p 2003 -t "dulieu" -u "doanthitramy" -P "123" -m "Humidity: 58 % Temperature: 39 *C Light Level: 310 lux"
-            preg_match('/Humidity:\s(\d+)\s%.*Temperature:\s([\d.]+)\s\*C.*Light\sLevel:\s(\d+)\slux/', $message, $matches);
+            preg_match('/Humidity:\s([\d.]+)\s%\s*Temperature:\s([\d.]+)\s\*C\s*Light\sLevel:(\d+)\slux/', $message, $matches);
 
             if ($matches) {
                 $humidity = $matches[1];    // Lấy giá trị độ ẩm
@@ -54,6 +54,7 @@ try {
                 $lux = $matches[3];         // Lấy giá trị ánh sáng
                 date_default_timezone_set('Asia/Ho_Chi_Minh'); // Thiết lập múi giờ Việt Nam
                 $time = date('Y-m-d H:i:s'); // Lấy thời gian hiện tại
+                echo "$humidity, $temperature, $lux\n";
 
                 // Lưu dữ liệu vào cơ sở dữ liệu
                 saveToDatabase($humidity, $temperature, $lux, $time);
