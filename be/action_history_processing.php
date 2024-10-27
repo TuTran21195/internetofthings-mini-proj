@@ -13,6 +13,7 @@
 
     // Xử lý yêu cầu
     $request = $_REQUEST;
+    $searchColumn= $request['searchColumn']; 
     $columns = array(
         0 => 'id',
         1 => 'devices',
@@ -27,17 +28,20 @@
 
     $sql = "SELECT * FROM tbl_action_history WHERE 1=1";
     // lọc trong khoảng thời gian
-    if (!empty($request['startDate']) && !empty($request['endDate'])) {
-        $startDate = $request['startDate'];
-        $endDate = $request['endDate'];
-        $sql .= " AND time BETWEEN '$startDate' AND '$endDate'";
-    }
+    // if (!empty($request['startDate']) && !empty($request['endDate'])) {
+    //     $startDate = $request['startDate'];
+    //     $endDate = $request['endDate'];
+    //     $sql .= " AND time BETWEEN '$startDate' AND '$endDate'";
+    // }
 
     // tìm kiếm
-    if (!empty($request['search']['value'])) {
-        $sql .= " AND (devices LIKE '%" . $request['search']['value'] . "%' ";
-        $sql .= " OR action LIKE '%" . $request['search']['value'] . "%' ";
-        $sql .= " OR time LIKE '%" . $request['search']['value'] . "%' )";
+    // if (!empty($request['search']['value'])) {
+    //     $sql .= " AND (devices LIKE '%" . $request['search']['value'] . "%' ";
+    //     $sql .= " OR action LIKE '%" . $request['search']['value'] . "%' ";
+    //     $sql .= " OR time LIKE '%" . $request['search']['value'] . "%' )";
+    // }
+    if (!empty($request['search']['value']) && !empty($request['searchColumn'])) {
+        $sql .= " AND $searchColumn LIKE '%" . $request['search']['value'] . "%' ";
     }
     $query = $conn->query($sql);
     $totalFiltered = $query->num_rows;
@@ -56,11 +60,15 @@
         $data[] = $nestedData;
     }
 
+    // Thêm trường bổ sung vào mảng JSON
+    $additionalInfo =" toi nhan duoc $searchColumn";
+
     $json_data = array(
         "draw" => intval($request['draw']),
         "recordsTotal" => intval($totalData),
         "recordsFiltered" => intval($totalFiltered),
-        "data" => $data
+        "data" => $data,
+        "extraInfo" => $additionalInfo
     );
 
     echo json_encode($json_data);

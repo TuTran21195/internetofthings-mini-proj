@@ -13,6 +13,7 @@
 
     // Xử lý yêu cầu
     $request = $_REQUEST;
+    $searchColumn= $request['searchColumn']; 
     $columns = array(
         0 => 'id',
         1 => 'humid',
@@ -26,21 +27,25 @@
     $totalData = $query->num_rows;
     $totalFiltered = $totalData;
 
+
     $sql = "SELECT * FROM tbl_data_sensor WHERE 1=1";
 
     // // lọc trong khoảng thời gian
     // if (!empty($request['startDate']) && !empty($request['endDate'])) {
     //     $startDate = $request['startDate'];
     //     $endDate = $request['endDate'];
-    //     $sql .= " AND time BETWEEN '$startDate' AND '$endDate'";
+        // $sql .= " AND time BETWEEN '$startDate' AND '$endDate'";
     // }
 
     // tìm kiếm
-    if (!empty($request['search']['value'])) {
-        $sql .= " AND (humid LIKE '%" . $request['search']['value'] . "%' ";
-        $sql .= " OR bright LIKE '%" . $request['search']['value'] . "%' ";
-        $sql .= " OR temperature LIKE '%" . $request['search']['value'] . "%' ";
-        $sql .= " OR time LIKE '%" . $request['search']['value'] . "%' )";
+    // if (!empty($request['search']['value'])) {
+    //     $sql .= " AND (humid LIKE '%" . $request['search']['value'] . "%' ";
+    //     $sql .= " OR bright LIKE '%" . $request['search']['value'] . "%' ";
+    //     $sql .= " OR temperature LIKE '%" . $request['search']['value'] . "%' ";
+    //     $sql .= " OR time LIKE '%" . $request['search']['value'] . "%' )";
+    // }
+    if (!empty($request['search']['value']) && !empty($request['searchColumn'])) {
+        $sql .= " AND $searchColumn LIKE '%" . $request['search']['value'] . "%' ";
     }
     $query = $conn->query($sql);
     $totalFiltered = $query->num_rows;
@@ -60,16 +65,19 @@
         $data[] = $nestedData;
     }
 
+
+    // Thêm trường bổ sung vào mảng JSON
+    $additionalInfo =" toi nhan duoc $searchColumn";
+
     $json_data = array(
         "draw" => intval($request['draw']),
         "recordsTotal" => intval($totalData),
         "recordsFiltered" => intval($totalFiltered),
-        "data" => $data
+        "data" => $data,
+        "extraInfo" => $additionalInfo
     );
 
     echo json_encode($json_data);
-    
-
 
 
 ?>

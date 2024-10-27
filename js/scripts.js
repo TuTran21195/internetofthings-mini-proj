@@ -267,24 +267,33 @@ function toggleDevice(device) {
 function getTableDataSensor(){
   console.log('this is one getTableDataSensor');
   // console.log(document.getElementById('datestart').value);
+  console.log( $('#searchColumn').val());
   
-  $('#data-sensor-table').DataTable({
+  const table = $('#data-sensor-table').DataTable({
     "processing": true,
     "serverSide": true,
     "destroy": true, // Thêm dòng này để hủy bảng cũ trước khi tạo bảng mới
     "ajax": {
       "url": "be/data_sensor_processing.php",
       "type": "POST",
-      "data": {
-            
-      //     "startDate": datestart,
-      //     "endDate": dateEnd
-
-      }
+      "data": function(d) {
+          d.searchColumn = $('#searchColumn').val();
+      },
+      "dataSrc": function(json) {
+                // Xử lý trường bổ sung nếu cần
+                console.log("Extra Info: ", json.extraInfo);
+                return json.data;
+            }
     },
     language: {
-      search: "Tìm kiếm FE:"
+      search: "Tìm kiếm BE:"
     },
+  });
+
+  // Sự kiện thay đổi cho dropdown
+  $('#searchColumn').change(function() {
+    console.log('Search column changed to: ' + $(this).val());
+    table.ajax.reload();
   });
 }
 
@@ -334,6 +343,7 @@ function convertFlatpickrTime(flatpickrTime) {
 function getTableActionHistory(){
   console.log('123 this is action history');
   // console.log(document.getElementById('datestart').value);
+  console.log( $('#searchColumn').val());
   
   $('#action-history-table').DataTable({
     "processing": true,
@@ -341,12 +351,25 @@ function getTableActionHistory(){
     "destroy": true, // Thêm dòng này để hủy bảng cũ trước khi tạo bảng mới
     "ajax": {
       "url": "be/action_history_processing.php",
-      // "type": "POST",
-      // "data": {
-      //     "startDate": datestart,
-      //     "endDate": dateEnd
-      // }
-    }
+      "type": "POST",
+      "data": function(d) {
+          d.searchColumn = $('#searchColumn').val();
+      },
+      "dataSrc": function(json) {
+                // Xử lý trường bổ sung nếu cần
+                console.log("Extra Info: ", json.extraInfo);
+                return json.data;
+            }
+    },
+    language: {
+      search: "Tìm kiếm BE:"
+    },
+  });
+
+  // Sự kiện thay đổi cho dropdown
+  $('#searchColumn').change(function() {
+    console.log('Search column changed to: ' + $(this).val());
+    table.ajax.reload();
   });
 }
 
