@@ -18,8 +18,8 @@
       <!-- <li class="list-group-item">A third item</li> -->
     </ul>
     <div class="card-body">
-      <a href="#" class="card-link">Github</a>
-      <a href="#" class="card-link">PDF</a>
+      <a href="https://github.com/TuTran21195/internetofthings-mini-proj" class="card-link">Github</a>
+      <a href="./Bao_cao_BTL_IoT_va_ung_dung_Latex.pdf" class="card-link">PDF</a>
       <a href="#" class="card-link">apidoc</a>
     </div>
   </div>

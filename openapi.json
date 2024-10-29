@@ -1,0 +1,394 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "IoT Database API",
+    "description": "API để quản lý và truy vấn dữ liệu trong DB iot_database",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost/iot-proj-2024-2/be"
+    }
+  ],
+  "paths": {
+    "/data_sensor_processing.php": {
+      "post": {
+        "summary": "Lấy dữ liệu cảm biến trong CSDL",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "draw": {
+                    "type": "integer",
+                    "description": "Số lần yêu cầu (tăng dần theo mỗi lần yêu cầu)"
+                  },
+                  "start": {
+                    "type": "integer",
+                    "description": "Chỉ số bắt đầu của dữ liệu"
+                  },
+                  "length": {
+                    "type": "integer",
+                    "description": "Số lượng bản ghi cần lấy"
+                  },
+                  "search": {
+                    "type": "object",
+                    "description": "Giá trị tìm kiếm",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "description": "Giá trị tìm kiếm",
+                        "example": 430
+                      }
+                    }
+                  },
+                  "order": {
+                    "type": "array",
+                    "description": "Chỉ số cột để sắp xếp và hướng sắp xếp (asc hoặc desc)",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "column": {
+                          "type": "integer",
+                          "description": "Chỉ số cột để sắp xếp"
+                        },
+                        "dir": {
+                          "type": "string",
+                          "description": "Hướng sắp xếp (asc hoặc desc)"
+                        }
+                      }
+                    }
+                  },
+                  "searchColumn": {
+                    "type": "string",
+                    "description": "Cột cần tìm kiếm",
+                    "example": "bright"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A list of action history records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "draw": {
+                      "type": "integer"
+                    },
+                    "recordsTotal": {
+                      "type": "integer"
+                    },
+                    "recordsFiltered": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "device": {
+                            "type": "string"
+                          },
+                          "action": {
+                            "type": "string"
+                          },
+                          "time": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        }
+                      }
+                    },
+                    "extraInfo": {
+                      "type": "string",
+                      "description": "Additional information"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/action_history_processing.php": {
+      "post": {
+        "summary": "Lấy dữ liệu lịch sử hành động",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "draw": {
+                    "type": "integer",
+                    "description": "Số lần yêu cầu (tăng dần theo mỗi lần yêu cầu)"
+                  },
+                  "start": {
+                    "type": "integer",
+                    "description": "Chỉ số bắt đầu của dữ liệu"
+                  },
+                  "length": {
+                    "type": "integer",
+                    "description": "Số lượng bản ghi cần lấy"
+                  },
+                  "search": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "description": "Giá trị tìm kiếm"
+                      }
+                    }
+                  },
+                  "order": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "column": {
+                          "type": "integer",
+                          "description": "Chỉ số cột để sắp xếp"
+                        },
+                        "dir": {
+                          "type": "string",
+                          "description": "Hướng sắp xếp (asc hoặc desc)"
+                        }
+                      }
+                    }
+                  },
+                  "searchColumn": {
+                    "type": "string",
+                    "description": "Cột cần tìm kiếm"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Danh sách lịch sử hành động",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "draw": {
+                      "type": "integer",
+                      "description": "Số lần yêu cầu"
+                    },
+                    "recordsTotal": {
+                      "type": "integer",
+                      "description": "Tổng số bản ghi"
+                    },
+                    "recordsFiltered": {
+                      "type": "integer",
+                      "description": "Tổng số bản ghi sau khi lọc"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "ID của bản ghi"
+                          },
+                          "devices": {
+                            "type": "string",
+                            "description": "Tên thiết bị"
+                          },
+                          "action": {
+                            "type": "string",
+                            "description": "Hành động on/off"
+                          },
+                          "time": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Thời gian thực thi hành động"
+                          }
+                        }
+                      }
+                    },
+                    "extraInfo": {
+                      "type": "string",
+                      "description": "Thông tin bổ sung"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getDeviceStatus.php": {
+      "get": {
+        "summary": "Lấy trạng thái bật/tắt cuối cùng của thiết bị trong csdl",
+        "description": "This endpoint retrieves the latest status of each device (led1, led2, led3) as recorded in the database.",
+        "responses": {
+          "200": {
+            "description": "Lấy thành công trạng thái bật tắt của thiết bị",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "led1": {
+                      "type": "string",
+                      "enum": [
+                        "on",
+                        "off"
+                      ],
+                      "description": "Status of LED 1"
+                    },
+                    "led2": {
+                      "type": "string",
+                      "enum": [
+                        "on",
+                        "off"
+                      ],
+                      "description": "Status of LED 2"
+                    },
+                    "led3": {
+                      "type": "string",
+                      "enum": [
+                        "on",
+                        "off"
+                      ],
+                      "description": "Status of LED 3"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Lỗi server, kết nối với csdl không thành công."
+          }
+        }
+      }
+    },
+    "/updateDeviceAction.php": {
+      "post": {
+        "summary": "Gửi tín hiệu bật tắt đèn",
+        "description": "This endpoint sends a request to turn a device on or off by publishing a message to an MQTT topic. The action is only saved to the database upon receiving a confirmation message from the device.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "device",
+                  "action"
+                ],
+                "properties": {
+                  "device": {
+                    "type": "string",
+                    "description": "The device to control (e.g., led1, led2, led3)",
+                    "example": "led1"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "The action to perform on the device (e.g., on, off)",
+                    "example": "on"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully sent action to the device",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Indicates if the action was successfully sent to the MQTT broker",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (e.g., missing or invalid parameters)"
+          },
+          "500": {
+            "description": "Server error (e.g., MQTT connection issues)"
+          }
+        }
+      }
+    },
+    "/getChartFromDB.php": {
+      "get": {
+        "summary": "Lấy 10 dữ liệu cảm biến cuối để vẽ biểu đồ",
+        "description": "Fetches the latest 10 sensor data records from the database in ascending order of ID.",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved sensor data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The unique identifier of the record",
+                        "example": 1
+                      },
+                      "humid": {
+                        "type": "number",
+                        "description": "Humidity reading from the sensor",
+                        "example": 45.2
+                      },
+                      "bright": {
+                        "type": "number",
+                        "description": "Brightness level recorded by the sensor",
+                        "example": 150
+                      },
+                      "temperature": {
+                        "type": "number",
+                        "description": "Temperature reading from the sensor",
+                        "example": 22.5
+                      },
+                      "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The timestamp of the data record",
+                        "example": "2024-10-29T14:30:00Z"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error (e.g., database connection issues)"
+          }
+        }
+      }
+    }
+  }
+}

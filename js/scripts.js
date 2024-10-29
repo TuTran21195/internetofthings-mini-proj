@@ -177,7 +177,6 @@ function updateChartData(chart, newData) {
 }
 
 
-
 // remote devices
 function getDeviceStatus(){
   fetch('be/getDeviceStatus.php')

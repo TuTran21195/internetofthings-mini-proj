@@ -51,7 +51,6 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // Mặc định là
   <script defer src="https://use.fontawesome.com/releases/v5.15.0/js/all.js"></script>
 
   
-
 </head>
 <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
