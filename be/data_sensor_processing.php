@@ -13,6 +13,12 @@
 
     // Xử lý yêu cầu
     $request = $_REQUEST;
+
+    $ordercolumn = $request['order'][0]['column'];
+    $orderDir =  $request['order'][0]['dir']; 
+    $reqs = $request['start']; 
+    $reqlen = $request['length']; 
+
     $searchColumn= $request['searchColumn']; 
     $columns = array(
         0 => 'id',
@@ -50,7 +56,8 @@
     $query = $conn->query($sql);
     $totalFiltered = $query->num_rows;
 
-    $sql .= " ORDER BY " . $columns[$request['order'][0]['column']] . " " . $request['order'][0]['dir'] . " LIMIT " . $request['start'] . " ," . $request['length'] . " ";
+    $sql .= " ORDER BY " . $columns[$ordercolumn] . " " . $orderDir . " LIMIT " . $request['start'] . " ," . $request['length'] . " ";
+    // $sql .= " ORDER BY " . $columns[$request['order'][0]['column']] . " " . $request['order'][0]['dir'] . " LIMIT " . $request['start'] . " ," . $request['length'] . " ";
     $query = $conn->query($sql);
 
     $data = array();
@@ -60,14 +67,17 @@
         $nestedData[] = $row["humid"];
         $nestedData[] = $row["bright"];
         $nestedData[] = $row["temperature"];
-        // $nestedData[] = $row["time"]; 
-        $nestedData[] = date('d-m-Y H:i:s', strtotime($row["time"])); // đưa thời gian về dạng ngày-tháng-năm
+        $nestedData[] = $row["time"]; 
+        // $nestedData[] = date('d-m-Y H:i:s', strtotime($row["time"])); // đưa thời gian về dạng ngày-tháng-năm
         $data[] = $nestedData;
     }
 
-
+    $ordercolumn = $request['order'][0]['column'];
+    $orderDir =  $request['order'][0]['dir']; 
+    $reqs = $request['start']; 
+    $reqlen = $request['length']; 
     // Thêm trường bổ sung vào mảng JSON
-    $additionalInfo =" toi nhan duoc $searchColumn";
+    $additionalInfo =" toi nhan duoc $searchColumn, $ordercolumn, $orderDir, $reqs, $reqlen ";
 
     $json_data = array(
         "draw" => intval($request['draw']),
@@ -79,5 +89,8 @@
 
     echo json_encode($json_data);
 
-
+    // echo '<pre>';
+    // print_r($request['order']);
+    // echo '</pre>';
+    // die();
 ?>

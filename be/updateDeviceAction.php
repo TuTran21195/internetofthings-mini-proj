@@ -1,6 +1,10 @@
 <?php
 // nhận yêu cầu bật tắt đèn từ FE sau đó gửi tín hiệu cho HW thông qua MQTT
 // Chờ đợi msg message.device === device && message.status === `${action} success` ({device: led1; status: on success})rồi thì lưu thao tác đó vào CSDL & gửi tín hiệu thành công cho FE
+// Thêm tiêu đề CORS: API cần có tiêu đề Access-Control-Allow-Origin để cho phép các yêu cầu từ các nguồn bên ngoài (apidoc)
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../vendor/autoload.php';  // Tự động load các thư viện đã cài qua Composer
 
@@ -15,7 +19,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $device = $data['device'];
 $action = $data['action'];
 
-$server   = '192.168.82.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
+$server   = '192.168.157.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
                                 //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
 $port = 2003;    // Cổng MQTT
 $clientId = 'php-mqtt-listener2';     // ID client MQTT: cái này nó phải khác cái ID bên mqtt_listener.php vì 

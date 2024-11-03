@@ -55,8 +55,8 @@
         $nestedData[] = $row["id"];
         $nestedData[] = $row["devices"];
         $nestedData[] = $row["action"];
-        // $nestedData[] = $row["time"]; 
-        $nestedData[] = date('d-m-Y H:i:s', strtotime($row["time"])); // đưa thời gian về dạng ngày-tháng-năm
+        $nestedData[] = $row["time"]; 
+        // $nestedData[] = date('d-m-Y H:i:s', strtotime($row["time"])); // đưa thời gian về dạng ngày-tháng-năm
         $data[] = $nestedData;
     }
 

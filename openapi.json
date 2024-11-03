@@ -7,15 +7,15 @@
   },
   "servers": [
     {
-      "url": "http://localhost/iot-proj-2024-2/be"
+      "url": "http://localhost/iot-proj-2024-2/be/"
     }
   ],
   "paths": {
     "/data_sensor_processing.php": {
       "post": {
-        "summary": "Lấy dữ liệu cảm biến trong CSDL",
+        "summary": "Lấy dữ liệu cảm biến",
         "requestBody": {
-          "required": true,
+          "required": false,
           "content": {
             "application/x-www-form-urlencoded": {
               "schema": {
@@ -23,48 +23,47 @@
                 "properties": {
                   "draw": {
                     "type": "integer",
-                    "description": "Số lần yêu cầu (tăng dần theo mỗi lần yêu cầu)"
+                    "description": "Số lần vẽ lại bảng.",
+                    "example": 1
                   },
                   "start": {
                     "type": "integer",
-                    "description": "Chỉ số bắt đầu của dữ liệu"
+                    "example": 0,
+                    "description": "Vị trí bắt đầu của dữ liệu cho phân trang"
                   },
                   "length": {
                     "type": "integer",
+                    "example": 10,
                     "description": "Số lượng bản ghi cần lấy"
                   },
-                  "search": {
-                    "type": "object",
-                    "description": "Giá trị tìm kiếm",
-                    "properties": {
-                      "value": {
-                        "type": "string",
-                        "description": "Giá trị tìm kiếm",
-                        "example": 430
-                      }
-                    }
+                  "search[value]": {
+                    "type": "string",
+                    "example": "1000",
+                    "description": "Giá trị tìm kiếm"
                   },
-                  "order": {
-                    "type": "array",
-                    "description": "Chỉ số cột để sắp xếp và hướng sắp xếp (asc hoặc desc)",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "column": {
-                          "type": "integer",
-                          "description": "Chỉ số cột để sắp xếp"
-                        },
-                        "dir": {
-                          "type": "string",
-                          "description": "Hướng sắp xếp (asc hoặc desc)"
-                        }
-                      }
-                    }
+                  "search[regex]": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Chỉ định có sử dụng regex hay không"
                   },
                   "searchColumn": {
                     "type": "string",
-                    "description": "Cột cần tìm kiếm",
-                    "example": "bright"
+                    "example": "bright",
+                    "description": "Cột cần tìm kiếm (time, humid, bright, temperature)"
+                  },
+                  "order[0][column]": {
+                    "type": "integer",
+                    "example": 0,
+                    "description": "Chỉ số của cột cần sắp xếp (0 - id, 1 - humid, 2 - bright, 3 - temperature, 4 - time)"
+                  },
+                  "order[0][dir]": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "example": "asc",
+                    "description": "Hướng sắp xếp (tăng dần hoặc giảm dần)"
                   }
                 }
               }
@@ -73,45 +72,48 @@
         },
         "responses": {
           "200": {
-            "description": "A list of action history records",
+            "description": "Response với dữ liệu cảm biến",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "draw": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Số lần yêu cầu (tăng dần theo mỗi lần yêu cầu)",
+                      "example": 6
                     },
                     "recordsTotal": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Tổng số bản ghi trong cơ sở dữ liệu",
+                      "example": 100
                     },
                     "recordsFiltered": {
-                      "type": "integer"
+                      "type": "integer",
+                      "description": "Số lượng bản ghi sau khi áp dụng bộ lọc tìm kiếm",
+                      "example": 50
                     },
                     "data": {
                       "type": "array",
+                      "description": "Mảng chứa dữ liệu các bản ghi cảm biến",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "device": {
-                            "type": "string"
-                          },
-                          "action": {
-                            "type": "string"
-                          },
-                          "time": {
-                            "type": "string",
-                            "format": "date-time"
-                          }
-                        }
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          1,
+                          "45.3",
+                          "320",
+                          "24.5",
+                          "2024-10-29 12:34:56"
+                        ]
                       }
                     },
                     "extraInfo": {
                       "type": "string",
-                      "description": "Additional information"
+                      "description": "Thông tin bổ sung cho biết cột đang được tìm kiếm",
+                      "example": "toi nhan duoc time"
                     }
                   }
                 }
@@ -125,7 +127,7 @@
       "post": {
         "summary": "Lấy dữ liệu lịch sử hành động",
         "requestBody": {
-          "required": true,
+          "required": false,
           "content": {
             "application/x-www-form-urlencoded": {
               "schema": {
@@ -133,44 +135,47 @@
                 "properties": {
                   "draw": {
                     "type": "integer",
-                    "description": "Số lần yêu cầu (tăng dần theo mỗi lần yêu cầu)"
+                    "description": "Số lần vẽ lại bảng.",
+                    "example": 1
                   },
                   "start": {
                     "type": "integer",
-                    "description": "Chỉ số bắt đầu của dữ liệu"
+                    "example": 0,
+                    "description": "Vị trí bắt đầu của dữ liệu cho phân trang"
                   },
                   "length": {
                     "type": "integer",
+                    "example": 10,
                     "description": "Số lượng bản ghi cần lấy"
                   },
-                  "search": {
-                    "type": "object",
-                    "properties": {
-                      "value": {
-                        "type": "string",
-                        "description": "Giá trị tìm kiếm"
-                      }
-                    }
+                  "search[value]": {
+                    "type": "string",
+                    "example": "1000",
+                    "description": "Giá trị tìm kiếm"
                   },
-                  "order": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "column": {
-                          "type": "integer",
-                          "description": "Chỉ số cột để sắp xếp"
-                        },
-                        "dir": {
-                          "type": "string",
-                          "description": "Hướng sắp xếp (asc hoặc desc)"
-                        }
-                      }
-                    }
+                  "search[regex]": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Chỉ định có sử dụng regex hay không"
                   },
                   "searchColumn": {
                     "type": "string",
-                    "description": "Cột cần tìm kiếm"
+                    "example": "time",
+                    "description": "Cột cần tìm kiếm (time, action, devices)"
+                  },
+                  "order[0][column]": {
+                    "type": "integer",
+                    "example": 0,
+                    "description": "Chỉ số của cột cần sắp xếp (0 - id, 1 - devices, 2 - action, 3 - time)"
+                  },
+                  "order[0][dir]": {
+                    "type": "string",
+                    "enum": [
+                      "asc",
+                      "desc"
+                    ],
+                    "example": "asc",
+                    "description": "Hướng sắp xếp (tăng dần hoặc giảm dần)"
                   }
                 }
               }

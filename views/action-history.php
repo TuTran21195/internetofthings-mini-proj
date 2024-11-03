@@ -11,7 +11,8 @@
     <label for="searchColumn">Tìm kiếm theo:</label>
       <select class="form-select" id="searchColumn" aria-label="Default select example">
         <!-- <option selected>Chọn tìm kiếm theo: Any</option> -->
-        <option value="">---</option>
+        <!-- <option value="">---</option> -->
+        <option value="time">Tìm theo thời gian</option>
         <option value="devices">Tìm theo Thiết bị</option>
         <option value="action">Tìm theo Action</option>
       </select>

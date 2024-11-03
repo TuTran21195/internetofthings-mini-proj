@@ -11,6 +11,7 @@
     <label for="searchColumn">Tìm kiếm theo:</label>
       <select class="form-select" id="searchColumn" aria-label="Default select example">
         <!-- <option selected>Chọn tìm kiếm theo: Any</option> -->
+        <option value="time">Tìm theo thời gian</option>
         <option value="humid">Tìm theo Độ ẩm</option>
         <option value="bright">Tìm theo Ánh sáng</option>
         <option value="temperature">Tìm theo Nhiệt độ</option>

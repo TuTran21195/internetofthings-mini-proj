@@ -9,7 +9,7 @@ use Ratchet\Client\WebSocket;
 use React\EventLoop\Factory;
 use Ratchet\Client\Connector;
 
-$server   = '192.168.82.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
+$server   = '192.168.157.195';  // Địa chỉ MQTT broker của bạn: ipconfig trên cmd laptop rồi copy cái ipv4 của cái Wifi vào đây: 
                                 //cái địa chỉ mqtt này mà chạy trên local thì cần phải giống cái ip trên code andruino của ESP32
 $port = 2003;                // Cổng MQTT
 $clientId = 'php-mqtt-listener';     // ID client MQTT
