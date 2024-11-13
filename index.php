@@ -43,12 +43,10 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // Mặc định là
     <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
 
   <!-- font awesome -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/fontawesome.min.css" integrity="sha512-B46MVOJpI6RBsdcU307elYeStF2JKT87SsHZfRSkjVi4/iZ3912zXi45X5/CBr/GbCyLx6M1GQtTKYRd52Jxgw==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
-  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous"/> -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" /> -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script defer src="https://use.fontawesome.com/releases/v5.15.0/js/all.js"></script>
+  <link rel="stylesheet" href="css\fontawesome\fontawesome-free-6.6.0-web\css\all.min.css">
+
+
+
 
   
 </head>
@@ -73,6 +71,9 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // Mặc định là
             <li class="nav-item">
               <a class="nav-link <?php echo ($page == 'profile') ? 'active' : ''; ?>" id="profile" aria-current="page" href="index.php?page=profile" >Profile</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link <?php echo ($page == 'bai5') ? 'active' : ''; ?>" id="bai5" aria-current="page" href="index.php?page=bai5" >Bài 5</a>
+            </li>
           </ul>
           <span class="navbar-text">Hệ thống IoT - Theo dõi và điều khiển thiết bị</span>
         </div>
@@ -91,6 +92,8 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; // Mặc định là
             include 'views/action-history.php';
         } elseif ($page == 'profile') {
             include 'views/profile.php';
+        } elseif ($page == 'bai5'){
+            include 'views/bai5.php';
         }
         ?>
     </div>

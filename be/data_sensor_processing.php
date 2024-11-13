@@ -25,7 +25,8 @@
         1 => 'humid',
         2 => 'bright',
         3 => 'temperature',
-        4 => 'time'
+        4 => 'time',
+        5 => 'bai5'
     );
 
     $sql = "SELECT * FROM tbl_data_sensor";
@@ -67,6 +68,7 @@
         $nestedData[] = $row["humid"];
         $nestedData[] = $row["bright"];
         $nestedData[] = $row["temperature"];
+        $nestedData[] = $row["bai5"]; 
         $nestedData[] = $row["time"]; 
         // $nestedData[] = date('d-m-Y H:i:s', strtotime($row["time"])); // đưa thời gian về dạng ngày-tháng-năm
         $data[] = $nestedData;

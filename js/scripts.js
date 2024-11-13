@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
   } else if (currentPage == 'action-history'){
     getTableActionHistory();
   }
+  else if (currentPage == 'bai5'){
+    drawChartbai5();
+
+  }
 
 });
 
@@ -31,6 +35,17 @@ function circularProgressMask(){
   let latest_tem_num = parseInt(document.getElementById('latest_tem_num').textContent, 10)/100;
   circularProgress__mask_tem.style.background = `conic-gradient(rgba(0,0,0,0) ${latest_tem_num*360}deg, rgba(255, 255, 255, 0.87) 0deg)`
 
+}
+function circularProgressMaskBai5(){
+  let circularProgress__mask_wind = document.getElementById('circular-progress__mask-wind');
+
+  let latest_wind_num = parseInt(document.getElementById('latest_wind_num').textContent, 10)/100;
+  circularProgress__mask_wind.style.background = `conic-gradient(rgba(0,0,0,0) ${latest_wind_num*360}deg, rgba(255, 255, 255, 0.87) 0deg)`
+  if (parseInt(document.getElementById('latest_wind_num').textContent, 10) >= 60){
+    toggleFlashing("on");
+  }else{
+    toggleFlashing("off");
+  }
 }
 
 
@@ -116,6 +131,99 @@ function drawChart() {
  
 }
 
+let bai5Chart;
+
+// let chart_bai5;
+function drawChartbai5() {
+  // console.log('start fetch')
+  fetch('be/getBai5Chart.php')
+  .then(response => response.json()) 
+  .then(data  => {
+      // console.log("Raw response:", data);
+      if (data) {
+        // Lấy dòng dữ liệu cuối cùng để đưa ra latestData 3 cái vòng tròn
+        let latestData = data[data.length - 1];
+          
+        // Cập nhật giá trị cho các thẻ div
+        // document.getElementById("latest_bright_num").textContent = latestData.bright;
+        // document.getElementById("latest_humid_num").textContent = latestData.humid;
+        // document.getElementById("latest_tem_num").textContent = latestData.temperature;
+        document.getElementById("latest_wind_num").textContent = latestData.bai5;
+        //vẽ lại cái vòng tròn
+        circularProgressMaskBai5();
+
+        //Bắt đầu vẽ chart
+        let labels = data.map(item => item.time);
+        let humidData = data.map(item => parseFloat(item.humid));
+        let brightData = data.map(item => parseFloat(item.bright));
+        let tempData = data.map(item => parseFloat(item.temperature));
+        let windData = data.map(item => parseFloat(item.bai5));
+
+        canvas_chart_bai5 = document.getElementById("chart-bai5");
+        // console.log(dashboardChart)
+        bai5Chart = new Chart(canvas_chart_bai5, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Nhiệt độ",
+                backgroundColor: "red",
+                borderColor: "red",
+                data: tempData,
+                tension: 0.4,
+                yAxisID: 'humidmeasurement',
+              },
+              {
+                label: "Độ ẩm",
+                backgroundColor: "blue",
+                borderColor: "blue",
+                data: humidData,
+                tension: 0.4,
+                yAxisID: 'humidmeasurement',
+              },
+              {
+                label: "Ánh sáng",
+                backgroundColor: "yellow",
+                borderColor: "yellow",
+                data: brightData,
+                tension: 0.4,
+                yAxisID: 'brightmeasurement',
+              },
+              {
+                label: "Tốc độ gió",
+                backgroundColor: "black",
+                borderColor: "black",
+                data: windData,
+                tension: 0.4,
+                yAxisID: 'humidmeasurement',
+              },
+            ],
+          },
+          options: {
+            scales: {
+              brightmeasurement: {
+                beginAtZero: true,
+                type: 'linear',
+                position:'right'
+              },
+              humidmeasurement:{
+                beginAtZero: true,
+                type: 'linear',
+                position:'left'
+              }
+            }
+          }
+        });
+
+      } else {
+          console.error('Empty response');
+      }
+  })
+  .catch(error => console.error('Error:', error));
+ 
+}
+
 // WebSocket kết nối tới server WEBSOCKET KẾT NỐI TỚI SERVER
 const ws = new WebSocket('ws://localhost:8081/ws');
 
@@ -135,6 +243,7 @@ ws.onmessage = function(event) {
     const message = JSON.parse(event.data);
     if (message.command === "updatechart")  {
       // Fetch new data and update chart
+      if(currentPage == "dashboard"){
       fetch('be/getChartFromDB.php')
         .then(response => response.json())
         .then(data => {
@@ -145,6 +254,20 @@ ws.onmessage = function(event) {
           }
         })
         .catch(error => console.error('Error fetching new data:', error));
+      }
+      if(currentPage == "bai5"){
+        fetch('be/getBai5Chart.php')
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          if (bai5Chart) {
+            updateChartDataBai5(bai5Chart, data); // Update the chart with new data
+          } else {
+            console.error('Chart bai 5 is not initialized.');
+          }
+        })
+        .catch(error => console.error('Error fetching new data bài 5:', error));
+      }
     }
     else if (message.device) {
       // Xử lý phản hồi từ thiết bị (khi toggleDevice gửi lệnh)
@@ -174,6 +297,30 @@ function updateChartData(chart, newData) {
   document.getElementById("latest_tem_num").textContent = latestData.temperature;
   //vẽ lại cái vòng tròn
   circularProgressMask();
+}
+function updateChartDataBai5(chart, newData) {
+  console.log();
+  // Kiểm tra và khởi tạo chart.data.labels nếu cần
+  if (!chart.data.labels) {
+    chart.data.labels = [];
+  }
+  chart.data.labels = newData.map(item => item.time);
+  chart.data.datasets[0].data = newData.map(item => parseFloat(item.temperature)); // Nhiệt độ
+  chart.data.datasets[1].data = newData.map(item => parseFloat(item.humid));       // Độ ẩm
+  chart.data.datasets[2].data = newData.map(item => parseFloat(item.bright));      // Ánh sáng
+  chart.data.datasets[3].data = newData.map(item => parseFloat(item.bai5));      // Ánh sáng
+  chart.update(); // Update the chart
+
+  // Lấy dòng dữ liệu cuối cùng để cập nhật latestData 3 cái vòng tròn
+  let latestData = newData[newData.length - 1];
+        
+  // Cập nhật giá trị cho các thẻ div
+  // document.getElementById("latest_bright_num").textContent = latestData.bright;
+  // document.getElementById("latest_humid_num").textContent = latestData.humid;
+  // document.getElementById("latest_tem_num").textContent = latestData.temperature;
+  document.getElementById("latest_wind_num").textContent = latestData.bai5;
+  //vẽ lại cái vòng tròn
+  circularProgressMaskBai5();
 }
 
 
@@ -397,4 +544,20 @@ function getTableActionHistoryFilteringTime(){
       }
     }
   });
+}
+
+
+
+// ============================BÀI 5===========================================
+function toggleFlashing(status) {
+  const waringDiv = document.getElementById("waringDiv");
+
+  if (status === "on") {
+    // Thêm lớp nhấp nháy khi trạng thái là "on"
+    waringDiv.classList.add("flashing");
+  } else {
+    // Loại bỏ lớp nhấp nháy khi trạng thái không phải "on"
+    waringDiv.classList.remove("flashing");
+    waringDiv.style.backgroundColor = ""; // Đặt lại màu nền ban đầu nếu cần
+  }
 }

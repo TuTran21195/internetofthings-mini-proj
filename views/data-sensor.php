@@ -50,6 +50,7 @@
         <th scope="col">Humidity</th>
         <th scope="col">Brightness</th>
         <th scope="col">Temperature</th>
+        <th scope="col">WindSpeed</th>
         <th scope="col">Time</th>
       </tr>
     </thead>

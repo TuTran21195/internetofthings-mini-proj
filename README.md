@@ -1,8 +1,12 @@
-# Iotminiproj
-@Author: Đoàn Thị Trà My - B21DCAT134 :blush:
-@Môn học: IoT và ứng dụng
-@Nhóm lớp: 05
-@GVHD: Nguyễn Quốc Uy
+# Iotminiproj :blush:
+|  |  |
+|-----------|-----------------|
+| Sinh viên | Đoàn Thị Trà My |
+| MSV       | B21DCAT134      |
+| Môn học   | IoT và ứng dụng |
+| Nhóm lớp  | 05              |
+| GVHD      | Nguyễn Quốc Uy  | 
+
 Đề tài:  **Hệ thống đo nhiệt độ, độ ẩm, ánh sáng \& điều khiển thiết bị** 
 
 # Giới thiệu
@@ -17,9 +21,11 @@ Mục tiêu là xây dựng một web đơn giản để nhận thông tin nhi�
      - DHT11 hoặc DHT22: đo nhiệt độ và độ ẩm: $\approx$ 10k 
      - Cảm biến quang trở: đo ánh sáng (trong bài sử dụng cảm biến ánh sáng 2 đầu ra: 10k)
  - Các thiết bị khác (có thể thay thế thành các loại khác nhau - một số cái có thể ko mua)
-   - breadboard: ổ cắm (có thể mua loại nhỏ - loại dài, để dễ thì cắm một nửa con ESP thôi không cần cắm cả)
-   - Dây nối (nên mua khoảng 10 dây đực-đực và đi xin thêm 1 dây đực-cái hoặc cái-cái (nhưng nếu không có thì có thể hàn chân cũng ok))
-   - Đèn led: Mua loại có số vôn tùy thích nhưng không nên mua loại < 3V vì nguồn ra của chân ESP32 là 3V.
+   - breadboard: ổ cắm (có thể mua loại nhỏ - loại dài, để dễ thì cắm một nửa con ESP thôi không cần cắm cả) $\approx$ 20k 
+   - Dây nối (nên mua khoảng 10 dây đực-đực và đi xin thêm 1 dây đực-cái hoặc cái-cái (nhưng nếu không có thì có thể hàn chân cũng ok)) $\approx$ 10k 
+   - Đèn led: Mua loại có số vôn tùy thích nhưng không nên mua loại < 3V vì nguồn ra của chân ESP32 là 3V. $\approx$ 2-5k  
+
+$\sum$ money $\approx$ 150k
    
 
 # Thiết kế hệ thống
@@ -69,10 +75,11 @@ API: Có 5 api
 - Xử lý việc gửi tín hiệu điều khiển từ web
 
 ## Quy trình
-### Các thành phần code:
+### Các thành phần code - cấu hình thư mục:
 - folder `be` chứa các file code phía Backend
-- folder `vendor` chứa các thư viện được tải về thông qua Composer như phpMQTT, ratchet (để code Websocket),...
-- folder còn lại là các file code phía FE.
+- folder `vendor` chứa các thư viện được tải về thông qua Composer như phpMQTT (để code BE lắng nghe topic MQTT), ratchet (để code Websocket),...
+- folder  `code-arduino` chứa file code để nạp vào ESP
+- folders còn lại là các file code phía FE.
 - Mẫu cơ sở dữ liệu nằm ở file `iot_database_sample.sql`
 - API doc theo Swagger được ghi tại file `openapi.json`
 
